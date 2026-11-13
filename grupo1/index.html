@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayuda para la generación de casos para Comité de Evaluación y Seguimiento SENA</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        @keyframes pulse-red {
+            0%, 100% { background-color: #ef4444; border-color: #dc2626; }
+            50% { background-color: #b91c1c; border-color: #991b1b; }
+        }
+        .btn-grabando {
+            animation: pulse-red 1.5s infinite;
+            color: white !important;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800 flex flex-col antialiased">
+
+    <!-- Header Institucional SENA Responsivo -->
+    <header class="bg-[#00324D] text-white shadow-md border-b-4 border-[#39A900] sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row justify-between items-center gap-3 sm:gap-4">
+            <div class="flex items-center space-x-3 w-full sm:w-auto justify-center sm:justify-start">
+                <div class="bg-white p-2 sm:p-2.5 rounded-xl shadow-inner text-[#39A900] flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-graduation-cap text-xl sm:text-2xl"></i>
+                </div>
+                <div class="text-center sm:text-left">
+                    <h1 class="text-base sm:text-xl md:text-2xl font-bold tracking-tight leading-snug">Generador de Casos - Comité SENA</h1>
+                    <p class="text-[11px] sm:text-xs text-slate-300">Acuerdo 009 de 2024</p>
+                </div>
+            </div>
+            
+            <!-- Configurador de OpenAI API Key Responsivo -->
+            <div class="flex flex-wrap items-center justify-center gap-2 bg-slate-800/80 p-2 rounded-xl border border-slate-700 w-full sm:w-auto">
+                <div class="flex items-center gap-1.5 text-xs font-medium text-slate-300">
+                    <i class="fa-solid fa-key text-amber-400"></i> API Key:
+                </div>
+                <input type="password" id="openAiKeyInput" placeholder="sk-..." class="bg-slate-900 border border-slate-700 text-white rounded-lg px-2.5 py-1 text-xs w-36 sm:w-44 focus:ring-1 focus:ring-[#39A900] focus:outline-none">
+                <button onclick="guardarApiKey()" class="bg-slate-700 hover:bg-slate-600 text-white px-2.5 py-1 rounded-lg text-xs font-semibold transition cursor-pointer">Guardar</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido Principal Adaptable -->
+    <main class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-8 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 flex-grow w-full">
+        
+        <!-- Columna Izquierda: Formulario de Entrada -->
+        <section class="lg:col-span-5 bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-6 flex flex-col gap-5 h-fit">
+            <div class="border-b border-slate-100 pb-3">
+                <h2 class="text-base sm:text-lg font-semibold text-[#00324D] flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-[#39A900]"></i> Datos del Caso y del Aprendiz
+                </h2>
+                <p class="text-xs text-slate-500 mt-0.5">Todos los campos son obligatorios para poder copiar el informe (*).</p>
+            </div>
+
+            <!-- Tipo de Caso -->
+            <div class="space-y-1.5">
+                <label class="block text-xs sm:text-sm font-semibold text-slate-700">Tipo de Reporte / Caso <span class="text-red-500">*</span></label>
+                <select id="tipoCaso" onchange="actualizarTipoCaso(); actualizarFichaFinal();" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-xs sm:text-sm focus:ring-2 focus:ring-[#39A900] focus:outline-none transition">
+                    <option value="" disabled selected>-- Seleccione el tipo de caso --</option>
+                    <option value="desercion">Deserción por faltas de inasistencia</option>
+                    <option value="academico">Académico</option>
+                    <option value="disciplinario">Disciplinario</option>
+                </select>
+            </div>
+
+            <!-- Motivo y/o Solicitud -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                <div class="space-y-1">
+                    <label class="block text-[11px] sm:text-xs font-bold text-slate-700 uppercase">Acción Solicitada <span class="text-red-500">*</span></label>
+                    <select id="accionSolicitud" onchange="actualizarFichaFinal()" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-2 text-xs focus:ring-2 focus:ring-[#39A900] focus:outline-none">
+                        <option value="" disabled selected>-- Seleccione --</option>
+                        <option value="cancelación de matrícula">Cancelación de matrícula</option>
+                        <option value="condicionamiento de matrícula">Condicionamiento de matrícula</option>
+                    </select>
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-[11px] sm:text-xs font-bold text-slate-700 uppercase">Motivo Específico <span class="text-red-500">*</span></label>
+                    <input type="text" id="motivoEspecifico" oninput="actualizarFichaFinal()" placeholder="Ej. mal desempeño actitudinal" class="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-2 text-xs focus:ring-2 focus:ring-[#39A900] focus:outline-none">
+                </div>
+            </div>
+
+            <!-- Datos Generales en Grid Responsiva -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div class="space-y-1">
+                    <label class="block text-xs font-semibold text-slate-600">Nombres y Apellidos del Aprendiz <span class="text-red-500">*</span></label>
+                    <input type="text" id="nombreAprendiz" oninput="actualizarFichaFinal()" placeholder="Ej. Carlos Pérez Gómez" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-[#39A900] focus:outline-none">
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs font-semibold text-slate-600">Documento de Identificación <span class="text-red-500">*</span></label>
+                    <input type="text" id="docAprendiz" oninput="actualizarFichaFinal()" placeholder="Ej. 1098765432" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-[#39A900] focus:outline-none">
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs font-semibold text-slate-600">Correo Electrónico <span class="text-red-500">*</span></label>
+                    <input type="email" id="correoAprendiz" oninput="actualizarFichaFinal()" placeholder="ejemplo@sena.edu.co" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-[#39A900] focus:outline-none">
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs font-semibold text-slate-600">Número de Ficha <span class="text-red-500">*</span></label>
+                    <input type="text" id="fichaAprendiz" oninput="actualizarFichaFinal()" placeholder="Ej. 3121496" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-[#39A900] focus:outline-none">
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs font-semibold text-slate-600">Nivel de Formación <span class="text-red-500">*</span></label>
+                    <select id="nivelFormacion" onchange="actualizarFichaFinal()" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-[#39A900] focus:outline-none">
+                        <option value="" disabled selected>-- Seleccione nivel --</option>
+                        <option value="Auxiliar">Auxiliar</option>
+                        <option value="Operario">Operario</option>
+                        <option value="Técnico">Técnico</option>
+                        <option value="Tecnólogo">Tecnólogo</option>
+                        <option value="Especialización Tecnológica">Especialización Tecnológica</option>
+                    </select>
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs font-semibold text-slate-600">Programa de Formación <span class="text-red-500">*</span></label>
+                    <input type="text" id="programaAprendiz" oninput="actualizarFichaFinal()" placeholder="Ej. Gestión Empresarial" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-[#39A900] focus:outline-none">
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs font-semibold text-slate-600">Estado en SofiaPlus <span class="text-red-500">*</span></label>
+                    <input type="text" id="estadoSofia" oninput="actualizarFichaFinal()" value="Activo" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-[#39A900] focus:outline-none">
+                </div>
+                <div class="space-y-1">
+                    <label class="block text-xs font-semibold text-slate-600">Instructor Remite <span class="text-red-500">*</span></label>
+                    <input type="text" id="instructorRemite" oninput="actualizarFichaFinal()" placeholder="Nombre del Instructor" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-[#39A900] focus:outline-none">
+                </div>
+            </div>
+
+            <!-- Relato Original de Hechos -->
+            <div class="space-y-2 pt-1">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <label class="block text-xs sm:text-sm font-semibold text-slate-700">Relato Original de Hechos <span class="text-red-500">*</span></label>
+                    <button type="button" onclick="toggleDictado()" id="btnMicHechos" class="w-full sm:w-auto bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 sm:py-1.5 rounded-lg text-xs font-medium transition flex items-center justify-center gap-1.5 border border-slate-300 cursor-pointer">
+                        <i class="fa-solid fa-microphone text-red-500" id="iconMic"></i> <span id="txtBtnMic">Dictar por Voz</span>
+                    </button>
+                </div>
+                <textarea id="inputHechos" rows="4" oninput="onInputHechosChange()" placeholder="Escriba o dicte aquí la narrativa..." class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs sm:text-sm focus:ring-2 focus:ring-[#39A900] focus:outline-none transition"></textarea>
+                <p id="statusMicHechos" class="text-xs text-red-500 font-semibold italic hidden"><i class="fa-solid fa-circle-dot animate-pulse"></i> Grabando audio continuo (Silencios tolerados, no se borra nada)...</p>
+            </div>
+
+            <!-- Botón de Inteligencia Artificial -->
+            <div class="flex justify-stretch sm:justify-end">
+                <button type="button" onclick="procesarConIA(this)" class="w-full sm:w-auto bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold transition flex items-center justify-center gap-2 shadow-sm cursor-pointer">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Mejorar redacción con IA
+                </button>
+            </div>
+
+            <!-- Notificación de conversión IA -->
+            <div id="avisoIAConvertido" class="hidden bg-emerald-50 border border-emerald-300 text-emerald-800 p-3 rounded-xl text-xs flex items-start gap-2">
+                <i class="fa-solid fa-circle-check text-emerald-600 mt-0.5"></i>
+                <div>
+                    <span class="font-bold">¡Relato convertido y tipificado con éxito!</span> Su texto original se conserva arriba, y la versión formal ajustada ya se encuentra disponible al frente en el <span class="font-semibold underline">Ítem 2. Antecedentes y/o Hechos</span>.
+                </div>
+            </div>
+
+            <!-- Sección Condicional: Registro de Inasistencias -->
+            <div id="seccionInasistencias" class="space-y-1.5 pt-2 border-t border-slate-100" style="display: none;">
+                <label class="block text-xs font-semibold text-slate-700">Fechas de Inasistencia (Sofia Plus) <span class="text-red-500">*</span></label>
+                <input type="text" id="fechasInasistencia" oninput="actualizarFichaFinal()" placeholder="Ej: febrero 5, febrero 9, marzo 12 de 2026" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-[#39A900] focus:outline-none">
+                <p class="text-[11px] text-slate-500">Fechas separadas por comas.</p>
+            </div>
+        </section>
+
+        <!-- Columna Derecha: Vista Previa Interactiva Dividida en Bloques -->
+        <section class="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-6 flex flex-col justify-between gap-5">
+            <div class="space-y-4 sm:space-y-5">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-100 pb-3">
+                    <h2 class="text-base sm:text-lg font-semibold text-[#00324D] flex items-center gap-2">
+                        <i class="fa-solid fa-clipboard-check text-[#39A900]"></i> Ficha Generada e Interactiva
+                    </h2>
+                    <button onclick="copiarTodo()" id="btnCopiar" class="w-full sm:w-auto bg-[#39A900] hover:bg-[#329600] text-white px-3.5 py-2 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium transition flex items-center justify-center gap-2 shadow-sm cursor-pointer">
+                        <i class="fa-solid fa-copy"></i> Copiar Todo el Informe
+                    </button>
+                </div>
+
+                <!-- BLOQUE 1: Solo lectura -->
+                <div class="bg-slate-50 p-3.5 sm:p-4 rounded-xl border border-slate-200 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <label class="block text-[11px] sm:text-xs font-bold text-[#00324D] uppercase tracking-wide flex items-center gap-1.5">
+                            <i class="fa-solid fa-table text-[#39A900]"></i> 1. Información del Aprendiz (Solo lectura)
+                        </label>
+                        <button onclick="copiarBloque('bloqueInfoAprendiz', this)" class="bg-white hover:bg-emerald-100 text-emerald-800 border border-emerald-300 px-2.5 py-1 rounded text-xs font-medium transition cursor-pointer flex items-center gap-1">
+                            <i class="fa-solid fa-copy"></i> Copiar
+                        </button>
+                    </div>
+                    <textarea id="bloqueInfoAprendiz" rows="10" readonly class="w-full bg-slate-100 border border-slate-300 rounded-lg p-2.5 text-xs font-mono text-slate-700 cursor-not-allowed resize-y focus:outline-none"></textarea>
+                </div>
+
+                <!-- BLOQUE 2: Antecedentes y/o Hechos -->
+                <div class="bg-blue-50/40 p-3.5 sm:p-4 rounded-xl border border-blue-200 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <label class="block text-[11px] sm:text-xs font-bold text-[#00324D] uppercase tracking-wide flex items-center gap-1.5">
+                            <i class="fa-solid fa-file-lines text-[#39A900]"></i> 2. Antecedentes y/o Hechos
+                        </label>
+                        <button onclick="copiarBloque('bloqueAntecedentes', this)" class="bg-white hover:bg-blue-100 text-blue-800 border border-blue-300 px-2.5 py-1 rounded text-xs font-medium transition cursor-pointer flex items-center gap-1">
+                            <i class="fa-solid fa-copy"></i> Copiar
+                        </button>
+                    </div>
+                    <textarea id="bloqueAntecedentes" rows="6" oninput="marcarModificacionManual('b2')" class="w-full bg-white border border-blue-300 rounded-lg p-2.5 text-xs font-mono text-slate-700 focus:ring-2 focus:ring-[#39A900] focus:outline-none resize-y"></textarea>
+                </div>
+
+                <!-- BLOQUE 3: Incumplimiento Reglamento del Aprendiz -->
+                <div class="bg-amber-50/40 p-3.5 sm:p-4 rounded-xl border border-amber-200 space-y-2">
+                    <div class="flex justify-between items-center gap-2">
+                        <label class="block text-[11px] sm:text-xs font-bold text-[#00324D] uppercase tracking-wide flex items-center gap-1.5">
+                            <i class="fa-solid fa-scale-balanced text-[#39A900]"></i> 3. Incumplimiento Reglamento del Aprendiz (Acuerdo 009 de 2024)
+                        </label>
+                        <button onclick="copiarBloque('bloqueReglamento', this)" class="bg-white hover:bg-amber-100 text-amber-800 border border-amber-300 px-2.5 py-1 rounded text-xs font-medium transition cursor-pointer flex items-center gap-1 shrink-0">
+                            <i class="fa-solid fa-copy"></i> Copiar
+                        </button>
+                    </div>
+                    <div class="flex justify-start">
+                        <button type="button" onclick="reajustarArticulosConIA(this)" class="bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1 rounded text-xs font-medium transition cursor-pointer flex items-center gap-1 shadow-xs">
+                            <i class="fa-solid fa-arrows-rotate"></i> Reajustar artículos con IA
+                        </button>
+                    </div>
+                    <textarea id="bloqueReglamento" rows="8" oninput="marcarModificacionManual('b3')" class="w-full bg-white border border-amber-300 rounded-lg p-2.5 text-xs font-mono text-slate-700 focus:ring-2 focus:ring-[#39A900] focus:outline-none resize-y"></textarea>
+                </div>
+
+                <!-- BLOQUE 4 -->
+                <div class="bg-slate-50 p-3.5 sm:p-4 rounded-xl border border-slate-200 space-y-2">
+                    <div class="flex justify-between items-center">
+                        <label class="block text-[11px] sm:text-xs font-bold text-[#00324D] uppercase tracking-wide flex items-center gap-1.5">
+                            <i class="fa-solid fa-stamp text-[#39A900]"></i> 4. Pruebas y Concepto Final
+                        </label>
+                        <button onclick="copiarBloque('bloqueCierre', this)" class="bg-white hover:bg-slate-200 text-slate-800 border border-slate-300 px-2.5 py-1 rounded text-xs font-medium transition cursor-pointer flex items-center gap-1">
+                            <i class="fa-solid fa-copy"></i> Copiar
+                        </button>
+                    </div>
+                    <textarea id="bloqueCierre" rows="6" oninput="marcarModificacionManual('b4')" class="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-xs font-mono text-slate-700 focus:ring-2 focus:ring-[#39A900] focus:outline-none resize-y"></textarea>
+                </div>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-slate-400 text-center sm:text-left">
+                <span>Acuerdo 009 de 2024 - Reglamento del Aprendiz SENA</span>
+                <span id="contadorCaracteres">0 caracteres</span>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-3 sm:py-4 text-center text-xs text-slate-500 mt-auto px-4">
+        Sistema de Apoyo a Instructores SENA - Centro de Tecnologías Agroindustriales Regional Valle
+    </footer>
+
+    <!-- Base de Conocimientos Interna: "Reglamento del aprendiz" -->
+    <script>
+        const reglamentoDelAprendiz = {
+            capituloIII_deberes: {
+                titulo: "CAPÍTULO III. DEBERES DEL APRENDIZ SENA",
+                articulo: "Artículo 8o. Deberes del aprendiz SENA",
+                introduccion: "Además de los consagrados en la Constitución y las leyes y demás normas colombianas, el aprendiz SENA es responsable de cumplir con los siguientes deberes, obligaciones y responsabilidades académicos, disciplinarios y administrativos:",
+                numerales: {
+                    1: "Suscribir al momento de asentar la matrícula, el acta de compromiso como aprendiz SENA en cumplimiento de sus obligaciones y deberes en las diferentes acciones, actividades y estrategias durante el proceso de formación.",
+                    2: "Conocer y cumplir el reglamento del aprendiz y demás normas del SENA asociadas con su proceso formativo.",
+                    3: "Actuar siempre teniendo como base los principios y valores institucionales.",
+                    4: "Registrar y mantener actualizados en el sistema de gestión académica administrativa, en el sistema de gestión virtual de aprendices, en la Agencia Pública de Empleo y demás aplicativos de la entidad, sus datos básicos y de contacto como aprendiz, garantizando la veracidad y vigencia de la información registrada. Además, actualizar de oficio o a solicitud del SENA, la información reportada en los aplicativos del SENA en los que se adelanten trámites para aprendices, de acuerdo con la normatividad vigente.",
+                    5: "Asistir con puntualidad a todas las actividades propias del proceso de formación.",
+                    6: "Cumplir con todas las actividades de su proceso formativo, presentando las evidencias según la planeación pedagógica, guías de aprendizaje y cronograma, en los plazos o en la oportunidad que estas deban presentarse o reportarse, a través de los medios dispuestos para ello.",
+                    7: "Justificar debidamente las inasistencias o incumplimientos a las actividades de la formación, en los términos establecidos en el presente reglamento.",
+                    8: "Reportar o informar oportunamente ante el instructor como primera instancia, y en segunda instancia al coordinador académico, las situaciones que se presenten en la ejecución de la formación que afecten el desarrollo de la formación.",
+                    9: "Cumplir con la reglamentación y directrices que se emitan para su participación en actividades programadas por el SENA o en las que represente a la entidad, como salidas, pasantías técnicas, intercambios de aprendices a nivel nacional e internacional, así como en las demás de carácter lúdico- pedagógico.",
+                    10: "Cumplir el procedimiento establecido para gestionar las novedades (traslados, aplazamiento, retiro voluntario, reintegro, reingreso y certificación) que presente durante su proceso formativo en los términos establecidos en el presente reglamento.",
+                    11: "Hacer uso apropiado de los ambientes de formación SENA y sus componentes (infraestructura física, equipos, maquinarias, herramientas, recursos didácticos, técnicos, tecnológicos y bibliográficos, materiales), disponibles para su proceso de aprendizaje, asumiendo responsabilidad legal en situaciones de utilización inadecuada, uso indebido, daño o pérdida, que deterioran los ambientes de aprendizaje y generan detrimento patrimonial.",
+                    12: "Respetar los derechos de autor y demás derechos de propiedad intelectual en los materiales, trabajos, proyectos y demás documentos entregados o generados en el proceso formativo.",
+                    13: "Realizar personalmente las evaluaciones, investigaciones, actividades y prácticas de formación, haciendo uso de sus conocimientos, su esfuerzo personal, creatividad y autoría propia, absteniéndose de presentar como propios, escritos, documentos, ideas, o resultados que no sean de su autoría.",
+                    14: "Respetar los bienes y recursos culturales, naturales, físicos, digitales, de uso público o privado (en la entidad o fuera de ella) y velar por su conservación, apoyando o colaborando en las acciones que adelante el Centro de Formación para su protección, conservación y buen uso.",
+                    15: "Usar apropiadamente y promover el uso de los elementos de protección personal que correspondan a la ejecución de su formación aplicando las buenas prácticas de seguridad y salud en el trabajo definidas por la entidad y por la normatividad para cuidar de su vida, salud e integridad, prevenir riesgos y promover ambientes seguros y saludables.",
+                    16: "Cumplir con los protocolos de bioseguridad establecidos por la entidad para el ingreso a las instalaciones del SENA o ambientes de formación, con el fin de cuidar de su vida, salud e integridad, prevenir riesgos y promover ambientes seguros y saludables.",
+                    17: "Acatar las normativas y directrices establecidas por el SENA para llevar a cabo la etapa productiva, seleccionando con la debida anticipación la modalidad de esta y presentando la evidencia correspondiente de la etapa productiva dentro del plazo máximo establecido por el presente reglamento.",
+                    18: "Si el trámite para la consecución de contrato de aprendizaje o de otra de las alternativas para el desarrollo de la etapa productiva, es realizado directamente por el aprendiz, este deberá informar inmediatamente cuando esto ocurra, a los responsables de apoyar este proceso en el Centro de Formación.",
+                    19: "Atender las indicaciones de identificación de usuarios que disponga la entidad para el ingreso a las sedes del SENA y a los ambientes de formación.",
+                    20: "Portar el conjunto de prendas y elementos de trabajo y protección asociados al proceso formativo. Los elementos de usos distintivo que no se relacionen directamente con la seguridad para el desempeño de las competencias asociadas al programa de formación, y cuando el aprendiz no cuente con las condiciones económicas para acceder al uniforme para el uso diario, no asociado como elemento de protección o exigencia de la empresa patrocinadora, no será causal para que los directores, subdirectores, coordinadores académicos y misionales e instructores, impidan el acceso a los ambientes de formación o actividades propias del proceso formativo. En igual sentido, no se podrá exigir uniformes de una marca específica o de un proveedor definido.",
+                    21: "Ingresar debidamente identificado a las plataformas virtuales institucionales, con el respectivo código de acceso, personal e intransferible. El usuario y la contraseña suministrada al aprendiz por la Entidad para el acceso a las plataformas virtuales institucionales son de uso personal y exclusivo, por lo tanto, no debe transferirse a otras personas. El mal uso de esta información es de su competencia directa y asumirá por ello las responsabilidades correspondientes.",
+                    22: "Informar de manera oportuna al Centro de Formación las condiciones de afectación a la salud que comprometan su integridad o la de la comunidad SENA, o interfieran en la ejecución de su proceso de formación.",
+                    23: "Hacer entrega oportuna de toda la documentación requerida en los procesos de ingreso, matrícula, formación, certificación y postulación a beneficios, incentivos y apoyos socioeconómicos según programa de formación del SENA. Esta documentación debe ser verdadera y acorde a la normatividad vigente. Es responsabilidad del aprendiz la veracidad de la información que aporta.",
+                    24: "Para los aprendices con discapacidad que, como resultado de su libre elección, expresión y voluntariamente decidan auto reconocerse como persona con discapacidad para recibir atención diferencial por parte del SENA, además de los deberes enunciados deberá:\n  a) Informar oportunamente al Centro de Formación sobre su discapacidad, para proceder a la gestión de los ajustes razonables requeridos que le posibiliten la participación, progreso y permanencia en su proceso formativo.\n  b) Hacer partícipe a sus familiares, cuidadores o red de apoyo de los procesos de acompañamiento institucional, como apoyo a su proceso formativo siempre y cuando se requiera.\n  c) Procurar por el cuidado de su salud y bienestar, cumpliendo con sus tratamientos médicos o procesos de rehabilitación establecidos por las instancias de salud tratantes. En este caso es recomendable pero opcional que el aprendiz haga el procedimiento de certificación de discapacidad y la consecuente inclusión en el Registro de Localización y Caracterización de Personas con Discapacidad, como resultado de su libre elección, expresión y de su autorreconocimiento para obtener el certificado médico correspondiente, según la normatividad vigente."
+                }
+            },
+            prohibiciones: {
+                titulo: "CAPÍTULO III. PROHIBICIONES",
+                articulo: "Artículo 9o. Prohibiciones",
+                introduccion: "Se considerarán prohibiciones para los Aprendices del SENA, las siguientes:",
+                numerales: {
+                    1: "Aportar documentos o registrar información en los sistemas de información del SENA, que difiera de la real, para el ingreso, formación, certificación o titulación; o para obtener cualquier beneficio de esta.",
+                    2: "Suplantar identidad en cualquier trámite académico o administrativo del SENA.",
+                    3: "Alterar, adulterar, falsificar o sustraer documentos públicos o privados emitidos por el SENA o en custodia del SENA.",
+                    4: "Plagiar, materiales, trabajos y demás documentos generados en los grupos de trabajo o producto del trabajo en equipo institucional, así como en actividades evaluativas del proceso formativo o en concursos, juegos o competencias de cualquier carácter.",
+                    5: "Utilizar el internet y demás tecnologías de información y comunicación dispuestas por el SENA en o para el desarrollo de su proceso formativo, con la finalidad de acceder, generar, transmitir, publicar o enviar información confidencial, de circulación restringida, inadecuada, malintencionada, violenta, ilegal, peligrosa, pornográfica, insultos o agresiones por los medios de comunicación físicos o electrónicos, o cualquier actividad que pueda causar daños al nombre, honra o derechos ajenos.",
+                    6: "Ingerir, ingresar, comercializar, promocionar o suministrar bebidas alcohólicas o sustancias psicoactivas, dentro de las instalaciones físicas y virtuales del SENA o en los ambientes formativos SENA, o ingresar a la entidad en estado que indique alteraciones de conducta ocasionadas por el consumo de estas o bajo su efecto.",
+                    7: "Ingresar o portar cualquier tipo de armas, objetos cortopunzantes, explosivos u otros artefactos que representen riesgo o puedan ser empleados para atentar contra la vida o la integridad física de las personas. Los miembros de la fuerza pública y organismos de seguridad del Estado que se encuentren en un proceso de aprendizaje, no podrán portar armas en el Centro de Formación.",
+                    8: "Utilizar el nombre del SENA, las instalaciones físicas y virtuales, el internet y las tecnologías de información y comunicación del SENA dispuestas para el desarrollo de su proceso de formación, para actividades particulares con o sin ánimo de lucro y que no estén relacionadas con su proceso formativo.",
+                    9: "Cometer, ser cómplice o copartícipe de delitos contra la comunidad educativa o contra la Institución.",
+                    10: "Destruir, sustraer, dañar total o parcialmente instalaciones físicas o virtuales, equipos, materiales, software, elementos y demás bienes o dotación en general del SENA o de instituciones, empresas u otras entidades donde el aprendiz represente la entidad o se desarrollen actividades de aprendizaje, culturales, recreativas, deportivas y sociales, intercambios estudiantiles nacionales o internacionales.",
+                    11: "Realizar acciones proselitistas de carácter político o religioso dentro de las instalaciones físicas y virtuales del SENA y demás ambientes donde se desarrollen actividades formativas.",
+                    12: "Ingresar o salir de cualquier instalación del Centro de Formación o de la entidad donde se desarrolle la formación, por sitios diferentes a la portería, saltando muros, cercas o violentando puertas, ventanas y cerraduras.",
+                    13: "Dibujar o escribir sobre cualquier objeto o mueble de las instalaciones físicas y virtuales donde se desarrollan programas de formación; o pegar avisos, carteles, pancartas o análogos en sitios no autorizados. Los lugares autorizados no podrán ser utilizados para publicar mensajes que se constituyan en hostigamiento, acoso de cualquier tipo, (bullying, mobbing) dirigido a integrantes de la comunidad educativa.",
+                    14: "Discriminar cualquier miembro de la comunidad SENA por condiciones como: sexo, nacionalidad, origen étnico, lengua, religión, identidad de género, orientación sexual, religión, situación económica, discapacidad, o preferencias políticas."
+                }
+            }
+        };
+    </script>
+
+    <!-- Script de Funcionalidad -->
+    <script>
+        let editadoManual = { b1: false, b2: false, b3: false, b4: false };
+        let tipificacionPersonalizadaIA = "";
+
+        function guardarApiKey() {
+            const key = document.getElementById('openAiKeyInput').value.trim();
+            if (key) {
+                localStorage.setItem('openai_api_key_sena', key);
+                alert('API Key de OpenAI guardada correctamente.');
+            } else {
+                alert('Por favor ingrese una API Key válida.');
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedKey = localStorage.getItem('openai_api_key_sena');
+            if (savedKey) {
+                document.getElementById('openAiKeyInput').value = savedKey;
+            }
+            actualizarFichaFinal();
+        });
+
+        function marcarModificacionManual(bloque) {
+            editadoManual[bloque] = true;
+            actualizarContador();
+        }
+
+        function resetearEdicionesManuales() {
+            editadoManual = { b1: false, b2: false, b3: false, b4: false };
+            tipificacionPersonalizadaIA = "";
+            document.getElementById('avisoIAConvertido').classList.add('hidden');
+        }
+
+        function actualizarTipoCaso() {
+            const tipo = document.getElementById('tipoCaso').value;
+            const seccionInasistencias = document.getElementById('seccionInasistencias');
+            if (tipo === 'desercion') {
+                seccionInasistencias.style.display = 'block';
+            } else {
+                seccionInasistencias.style.display = 'none';
+            }
+            resetearEdicionesManuales();
+            actualizarFichaFinal();
+        }
+
+        function onInputHechosChange() {
+            actualizarContador();
+        }
+
+        let reconocimiento = null;
+        let grabandoManual = false;
+        let transcripcionAcumuladaSesion = "";
+
+        function toggleDictado() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert('Su navegador no soporta el reconocimiento de voz nativo. Utilice Google Chrome.');
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+            if (grabandoManual) {
+                detenerGrabacionManual();
+                return;
+            }
+
+            grabandoManual = true;
+            transcripcionAcumuladaSesion = document.getElementById('inputHechos').value;
+            if (transcripcionAcumuladaSesion.length > 0 && !transcripcionAcumuladaSesion.endsWith(' ')) {
+                transcripcionAcumuladaSesion += ' ';
+            }
+
+            iniciarMotorVoz(SpeechRecognition);
+        }
+
+        function iniciarMotorVoz(SpeechRecognition) {
+            if (!grabandoManual) return;
+
+            reconocimiento = new SpeechRecognition();
+            reconocimiento.lang = 'es-CO';
+            reconocimiento.continuous = true;
+            reconocimiento.interimResults = true;
+
+            reconocimiento.onstart = function() {
+                const btnMicHechos = document.getElementById('btnMicHechos');
+                const iconMic = document.getElementById('iconMic');
+                const txtBtnMic = document.getElementById('txtBtnMic');
+                const statusEl = document.getElementById('statusMicHechos');
+                const textarea = document.getElementById('inputHechos');
+
+                btnMicHechos.classList.add('btn-grabando');
+                btnMicHechos.classList.remove('bg-slate-100', 'hover:bg-slate-200', 'text-slate-700');
+                iconMic.classList.remove('text-red-500');
+                iconMic.classList.add('text-white');
+                txtBtnMic.innerText = 'Grabando (Clic para parar)';
+                statusEl.classList.remove('hidden');
+                textarea.classList.add('border-red-500', 'ring-2', 'ring-red-200');
+            };
+
+            reconocimiento.onresult = function(event) {
+                let textoFinalFrase = '';
+                let textoTemporalIntermedio = '';
+
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        textoFinalFrase += event.results[i][0].transcript;
+                    } else {
+                        textoTemporalIntermedio += event.results[i][0].transcript;
+                    }
+                }
+
+                if (textoFinalFrase) {
+                    transcripcionAcumuladaSesion += textoFinalFrase + ' ';
+                }
+
+                document.getElementById('inputHechos').value = transcripcionAcumuladaSesion + textoTemporalIntermedio;
+                
+                document.getElementById('avisoIAConvertido').classList.add('hidden');
+                actualizarFichaFinal();
+            };
+
+            reconocimiento.onerror = function(event) {
+                console.warn("Aviso de reconocimiento de voz: ", event.error);
+            };
+
+            reconocimiento.onend = function() {
+                if (grabandoManual) {
+                    transcripcionAcumuladaSesion = document.getElementById('inputHechos').value;
+                    if (transcripcionAcumuladaSesion.length > 0 && !transcripcionAcumuladaSesion.endsWith(' ')) {
+                        transcripcionAcumuladaSesion += ' ';
+                    }
+                    try {
+                        reconocimiento.start();
+                    } catch (e) {
+                        console.log("Reiniciando instancia de voz...", e);
+                    }
+                } else {
+                    detenerDictadoVisual();
+                }
+            };
+
+            try {
+                reconocimiento.start();
+            } catch (e) {
+                console.error("No se pudo iniciar el reconocimiento:", e);
+            }
+        }
+
+        function detenerGrabacionManual() {
+            grabandoManual = false;
+            if (reconocimiento) {
+                try {
+                    reconocimiento.stop();
+                } catch(e) {}
+                reconocimiento = null;
+            }
+            detenerDictadoVisual();
+        }
+
+        function detenerDictadoVisual() {
+            const btnMicHechos = document.getElementById('btnMicHechos');
+            const iconMic = document.getElementById('iconMic');
+            const txtBtnMic = document.getElementById('txtBtnMic');
+            const statusEl = document.getElementById('statusMicHechos');
+            const textarea = document.getElementById('inputHechos');
+
+            if (btnMicHechos) {
+                btnMicHechos.classList.remove('btn-grabando');
+                btnMicHechos.classList.add('bg-slate-100', 'hover:bg-slate-200', 'text-slate-700');
+                iconMic.classList.add('text-red-500');
+                iconMic.classList.remove('text-white');
+                txtBtnMic.innerText = 'Dictar por Voz';
+            }
+            if (statusEl) statusEl.classList.add('hidden');
+            if (textarea) textarea.classList.remove('border-red-500', 'ring-2', 'ring-red-200');
+        }
+
+        // Validación exclusiva para el momento de copiar o exportar
+        function validarCamposObligatorios() {
+            const camposAValidar = [
+                { id: 'tipoCaso', nombre: 'Tipo de Reporte / Caso' },
+                { id: 'accionSolicitud', nombre: 'Acción Solicitada' },
+                { id: 'motivoEspecifico', nombre: 'Motivo Específico' },
+                { id: 'nombreAprendiz', nombre: 'Nombres y Apellidos del Aprendiz' },
+                { id: 'docAprendiz', nombre: 'Documento de Identificación' },
+                { id: 'correoAprendiz', nombre: 'Correo Electrónico' },
+                { id: 'fichaAprendiz', nombre: 'Número de Ficha' },
+                { id: 'nivelFormacion', nombre: 'Nivel de Formación' },
+                { id: 'programaAprendiz', nombre: 'Programa de Formación' },
+                { id: 'estadoSofia', nombre: 'Estado en SofiaPlus' },
+                { id: 'instructorRemite', nombre: 'Instructor Remite' },
+                { id: 'inputHechos', nombre: 'Relato Original de Hechos' }
+            ];
+
+            for (let campo of camposAValidar) {
+                const el = document.getElementById(campo.id);
+                if (!el || !el.value || el.value.trim() === '') {
+                    alert(`No se puede copiar: El campo obligatorio "${campo.nombre}" está vacío.`);
+                    if (el) {
+                        el.focus();
+                    }
+                    return false;
+                }
+            }
+
+            const tipo = document.getElementById('tipoCaso').value;
+            if (tipo === 'desercion') {
+                const inasistencias = document.getElementById('fechasInasistencia');
+                if (!inasistencias.value || inasistencias.value.trim() === '') {
+                    alert('No se puede copiar: Debe ingresar las "Fechas de Inasistencia (Sofia Plus)" para casos de deserción.');
+                    inasistencias.focus();
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        async function procesarConIA(btnElement) {
+            if (grabandoManual) {
+                detenerGrabacionManual();
+            }
+
+            const inputTexto = document.getElementById('inputHechos').value.trim();
+            if (!inputTexto) {
+                alert('Por favor ingrese o dicte primero el relato original de los hechos.');
+                document.getElementById('inputHechos').focus();
+                return;
+            }
+
+            const apiKey = localStorage.getItem('openai_api_key_sena') || document.getElementById('openAiKeyInput').value.trim();
+
+            if (!apiKey) {
+                alert('Por favor configure su OpenAI API Key en la parte superior para realizar el análisis inteligente con el Reglamento del aprendiz.');
+                let textoFallback = `2. Antecedentes y/o Hechos\n\nEl aprendiz ha incurrido en situaciones que afectan el normal desarrollo del proceso formativo, manifestado en: "${inputTexto}".`;
+                const tipo = document.getElementById('tipoCaso').value;
+                const inasistencias = document.getElementById('fechasInasistencia').value.trim();
+                if (tipo === 'desercion' && inasistencias !== '') {
+                    textoFallback += `\n\nAdicionalmente, en el aplicativo Sofia Plus reposan los soportes de inasistencia del aprendiz correspondientes a los días: ${inasistencias}.`;
+                }
+                document.getElementById('bloqueAntecedentes').value = textoFallback;
+                document.getElementById('avisoIAConvertido').classList.remove('hidden');
+                actualizarContador();
+                return;
+            }
+
+            const btnOriginalText = btnElement.innerHTML;
+            btnElement.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Analizando con IA...';
+            btnElement.disabled = true;
+
+            try {
+                const contextoReglamentoTexto = JSON.stringify(reglamentoDelAprendiz);
+
+                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ` + apiKey
+                    },
+                    body: JSON.stringify({
+                        model: 'gpt-4o-mini',
+                        messages: [
+                            { 
+                                role: 'system', 
+                                content: `Eres un instructor SENA experto en comités de evaluación y seguimiento. Tu tarea consta de dos partes:
+1. Transforma el relato informal en una narrativa formal y objetiva para el apartado de Hechos (SIN incluir títulos ni encabezados).
+2. Analiza el "Reglamento del aprendiz" proporcionado internamente (Acuerdo 009 de 2024), buscando rigurosamente en el **CAPÍTULO III - DEBERES DEL APRENDIZ SENA** (Artículo 8) y Prohibiciones (Artículo 9) los artículos y numerales exactos que el aprendiz incumplió según el relato.
+IMPORTANTE: 
+- NO incluyas frases como "Texto exacto:" ni pongas el texto entre comillas. Imprime directamente el contenido del artículo de forma limpia y formal.
+- Presenta el resultado con la estructura jerárquica exacta: 
+  CAPÍTULO III. DEBERES DEL APRENDIZ SENA
+  Artículo 8o. Deberes del aprendiz SENA
+  N. [Texto literal del numeral...]
+Devuelve estrictamente un JSON con esta estructura exacta:
+{
+  "hechosMejorados": "Párrafos formales de antecedentes y hechos...",
+  "tipificacionNormativa": "3. Incumplimiento Reglamento del Aprendiz (Acuerdo 009 de 2024)\\n\\nTeniendo en cuenta el Reglamento del Aprendiz SENA adoptado por medio del Acuerdo 009 del 2024, y tras contrastar los hechos narrados por el instructor con la normativa vigente, se relacionan en orden cronológico los artículos presuntamente incumplidos:\\n\\nCAPÍTULO III. DEBERES DEL APRENDIZ SENA\\nArtículo 8o. Deberes del aprendiz SENA\\nN. Texto limpio y directo del numeral..."
+}
+Base normativa interna ("Reglamento del aprendiz"): ${contextoReglamentoTexto}` 
+                            },
+                            { role: 'user', content: inputTexto }
+                        ],
+                        temperature: 0.2,
+                        response_format: { type: "json_object" }
+                    })
+                });
+
+                const data = await response.json();
+                btnElement.innerHTML = btnOriginalText;
+                btnElement.disabled = false;
+
+                if (data.choices && data.choices[0]) {
+                    const resultadoJSON = JSON.parse(data.choices[0].message.content);
+                    
+                    let hechosLimpios = (resultadoJSON.hechosMejorados || inputTexto).trim();
+                    hechosLimpios = hechosLimpios.replace(/^\*\*(Antecedentes|Hechos|Antecedentes y Hechos):\*\*\s*/i, '');
+
+                    const tipo = document.getElementById('tipoCaso').value;
+                    const inasistencias = document.getElementById('fechasInasistencia').value.trim();
+                    let textoNarrativa = `2. Antecedentes y/o Hechos\n\n${hechosLimpios}`;
+                    if (tipo === 'desercion' && inasistencias !== '') {
+                        textoNarrativa += `\n\nAdicionalmente, en el aplicativo Sofia Plus reposan los soportes de inasistencia del aprendiz correspondientes a los días: ${inasistencias}.`;
+                    }
+                    document.getElementById('bloqueAntecedentes').value = textoNarrativa;
+
+                    tipificacionPersonalizadaIA = resultadoJSON.tipificacionNormativa || "";
+                    document.getElementById('bloqueReglamento').value = tipificacionPersonalizadaIA;
+
+                    editadoManual.b2 = true;
+                    editadoManual.b3 = true;
+
+                    document.getElementById('avisoIAConvertido').classList.remove('hidden');
+                    actualizarContador();
+                } else {
+                    throw new Error(data.error?.message || 'Error desconocido de la API');
+                }
+            } catch (error) {
+                btnElement.innerHTML = btnOriginalText;
+                btnElement.disabled = false;
+                alert('Error al conectar con OpenAI: ' + error.message);
+            }
+        }
+
+        async function reajustarArticulosConIA(btnElement) {
+            if (grabandoManual) {
+                detenerGrabacionManual();
+            }
+
+            const relatoOriginal = document.getElementById('inputHechos').value.trim();
+            const antecedentesActuales = document.getElementById('bloqueAntecedentes').value.trim();
+            const tipoCaso = document.getElementById('tipoCaso').value;
+
+            if (!relatoOriginal && (!antecedentesActuales || antecedentesActuales.includes('PENDIENTE DE NARRATIVA'))) {
+                alert('Por favor ingrese o dicte primero el relato de los hechos para poder contrastarlo con el Reglamento del Aprendiz.');
+                document.getElementById('inputHechos').focus();
+                return;
+            }
+
+            const apiKey = localStorage.getItem('openai_api_key_sena') || document.getElementById('openAiKeyInput').value.trim();
+            if (!apiKey) {
+                alert('Por favor configure su OpenAI API Key en la parte superior para realizar el reajuste normativo.');
+                return;
+            }
+
+            const btnOriginalHTML = btnElement.innerHTML;
+            btnElement.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Reajustando...';
+            btnElement.disabled = true;
+
+            try {
+                const contextoReglamentoTexto = JSON.stringify(reglamentoDelAprendiz);
+                const reglamentoActual = document.getElementById('bloqueReglamento').value.trim();
+
+                const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + apiKey
+                    },
+                    body: JSON.stringify({
+                        model: 'gpt-4o-mini',
+                        messages: [
+                            {
+                                role: 'system',
+                                content: `Eres un experto jurídico y pedagógico del SENA especializado en el Reglamento del Aprendiz (Acuerdo 009 de 2024).
+Tu única tarea es revisar exhaustivamente la narrativa de hechos entregada por el instructor y seleccionar TODOS los artículos y numerales exactos del Reglamento del Aprendiz proporcionado (Capítulo III - Deberes Artículo 8 y/o Prohibiciones Artículo 9) que guarden estricta coherencia y relación directa con las conductas descritas.
+Reglas obligatorias:
+1. Analiza minuciosamente cada conducta descrita en el relato y en los antecedentes para asegurarte de que no falte ningún deber o prohibición aplicable, y elimina cualquier numeral que no tenga relación directa con los hechos.
+2. Usa EXCLUSIVAMENTE los textos literales del objeto JSON de la base normativa interna proporcionada. No inventes artículos ni parafrasees los numerales.
+3. No incluyas frases como "Texto exacto:" ni comillas alrededor del texto.
+4. Mantén esta estructura exacta en la respuesta:
+3. Incumplimiento Reglamento del Aprendiz (Acuerdo 009 de 2024)
+
+Teniendo en cuenta el Reglamento del Aprendiz SENA adoptado por medio del Acuerdo 009 del 2024, y tras contrastar los hechos narrados por el instructor con la normativa vigente, se relacionan en orden cronológico los artículos presuntamente incumplidos:
+
+[CAPÍTULO Y ARTÍCULO CORRESPONDIENTE]
+[N. Texto literal del numeral...]
+
+Devuelve estrictamente un JSON con una sola clave:
+{
+  "tipificacionNormativa": "..."
+}
+Base normativa interna ("Reglamento del aprendiz"): ${contextoReglamentoTexto}`
+                            },
+                            {
+                                role: 'user',
+                                content: `Tipo de caso: ${tipoCaso || 'No especificado'}\n\nRelato original del instructor:\n${relatoOriginal}\n\nAntecedentes redactados:\n${antecedentesActuales}\n\nTipificación previa que requiere revisión y ajuste:\n${reglamentoActual}`
+                            }
+                        ],
+                        temperature: 0.1,
+                        response_format: { type: "json_object" }
+                    })
+                });
+
+                const data = await response.json();
+                btnElement.innerHTML = btnOriginalHTML;
+                btnElement.disabled = false;
+
+                if (data.choices && data.choices[0]) {
+                    const resultadoJSON = JSON.parse(data.choices[0].message.content);
+                    if (resultadoJSON.tipificacionNormativa) {
+                        tipificacionPersonalizadaIA = resultadoJSON.tipificacionNormativa.trim();
+                        document.getElementById('bloqueReglamento').value = tipificacionPersonalizadaIA;
+                        editadoManual.b3 = true;
+                        actualizarContador();
+                    }
+                } else {
+                    throw new Error(data.error?.message || 'Error desconocido de la API');
+                }
+            } catch (error) {
+                btnElement.innerHTML = btnOriginalHTML;
+                btnElement.disabled = false;
+                alert('Error al reajustar artículos con OpenAI: ' + error.message);
+            }
+        }
+
+        function tipificarConReglamento(tipoCaso, relato) {
+            if (!relato || relato.trim() === '') {
+                return "3. Incumplimiento Reglamento del Aprendiz (Acuerdo 009 de 2024)\n\nTeniendo en cuenta el Reglamento del Aprendiz SENA adoptado por medio del Acuerdo 009 del 2024, y tras contrastar los hechos narrados por el instructor con la normativa vigente, se relacionan en orden cronológico los artículos presuntamente incumplidos:\n\n[PENDIENTE DE NARRATIVA: Ingrese o dicte el relato y presione 'Mejorar redacción con IA']";
+            }
+
+            if (tipificacionPersonalizadaIA) {
+                return tipificacionPersonalizadaIA;
+            }
+
+            let textoReglamento = `3. Incumplimiento Reglamento del Aprendiz (Acuerdo 009 de 2024)\n\nTeniendo en cuenta el Reglamento del Aprendiz SENA adoptado por medio del Acuerdo 009 del 2024, y tras contrastar los hechos narrados por el instructor con la normativa vigente, se relacionan en orden cronológico los artículos presuntamente incumplidos:\n\n`;
+
+            const relLower = relato.toLowerCase();
+            let encontradosLocal = [];
+
+            if (relLower.includes('tarde') || relLower.includes('puntual') || relLower.includes('llegada')) {
+                encontradosLocal.push({ num: 5, texto: reglamentoDelAprendiz.capituloIII_deberes.numerales[5] });
+            }
+            if (relLower.includes('asistencia') || relLower.includes('falta') || tipoCaso === 'desercion') {
+                encontradosLocal.push({ num: 5, texto: reglamentoDelAprendiz.capituloIII_deberes.numerales[5] });
+                encontradosLocal.push({ num: 7, texto: reglamentoDelAprendiz.capituloIII_deberes.numerales[7] });
+            }
+            if (relLower.includes('trabajo') || relLower.includes('evidencia') || relLower.includes('plagio')) {
+                encontradosLocal.push({ num: 6, texto: reglamentoDelAprendiz.capituloIII_deberes.numerales[6] });
+                encontradosLocal.push({ num: 13, texto: reglamentoDelAprendiz.capituloIII_deberes.numerales[13] });
+            }
+
+            if (encontradosLocal.length === 0) {
+                encontradosLocal.push({ num: 2, texto: reglamentoDelAprendiz.capituloIII_deberes.numerales[2] });
+                encontradosLocal.push({ num: 5, texto: reglamentoDelAprendiz.capituloIII_deberes.numerales[5] });
+            }
+
+            textoReglamento += `${reglamentoDelAprendiz.capituloIII_deberes.titulo}\n${reglamentoDelAprendiz.capituloIII_deberes.articulo}\n`;
+            encontradosLocal.forEach(item => {
+                textoReglamento += `${item.num}. ${item.texto}\n\n`;
+            });
+
+            if (tipoCaso === 'desercion') {
+                textoReglamento += `CAPÍTULO VII. DE LA DESERCIÓN\nArtículo correspondiente a la inasistencia injustificada y configuración de deserción conforme a los plazos establecidos en el Acuerdo 009 de 2024.`;
+            }
+
+            return textoReglamento;
+        }
+
+        function obtenerMotivoCompleto() {
+            const accionSol = document.getElementById('accionSolicitud').value;
+            const motivoEsp = document.getElementById('motivoEspecifico').value.trim();
+            return motivoEsp && accionSol ? `${accionSol} ${motivoEsp}` : (accionSol || '');
+        }
+
+        function actualizarFichaFinal() {
+            const tipo = document.getElementById('tipoCaso').value;
+            const accionSol = document.getElementById('accionSolicitud').value;
+            const motivoCompleto = obtenerMotivoCompleto();
+
+            const nombre = document.getElementById('nombreAprendiz').value.trim();
+            const doc = document.getElementById('docAprendiz').value.trim();
+            const correo = document.getElementById('correoAprendiz').value.trim();
+            const ficha = document.getElementById('fichaAprendiz').value.trim();
+            const nivel = document.getElementById('nivelFormacion').value;
+            const programa = document.getElementById('programaAprendiz').value.trim();
+            const estado = document.getElementById('estadoSofia').value.trim();
+            const instructor = document.getElementById('instructorRemite').value.trim();
+            
+            const fechaActual = new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
+
+            const bloque1 = `1. Información del Aprendiz\n\nMOTIVO Y/O SOLICITUD: ${motivoCompleto}
+NOMBRES Y APELLIDOS DEL APRENDIZ: ${nombre}
+DOCUMENTO DE IDENTIFICACIÓN: ${doc}
+CORREO ELECTRÓNICO: ${correo}
+FICHA: ${ficha}
+NIVEL DE FORMACIÓN: ${nivel}
+PROGRAMA DE FORMACIÓN: ${programa}
+ESTADO DE APRENDIZ SOFIAPLUS: ${estado}
+FECHA DE CONSULTA: ${fechaActual}
+REMITE: Instructor ${instructor}`;
+            document.getElementById('bloqueInfoAprendiz').value = bloque1;
+
+            const relatoHechos = document.getElementById('inputHechos').value.trim();
+            const inasistencias = document.getElementById('fechasInasistencia').value.trim();
+
+            if (!editadoManual.b2) {
+                let textoNarrativa = "";
+                if (relatoHechos !== '') {
+                    textoNarrativa = `2. Antecedentes y/o Hechos\n\n${relatoHechos}`;
+                    if (tipo === 'desercion' && inasistencias !== '') {
+                        textoNarrativa += `\n\nAdicionalmente, en el aplicativo Sofia Plus reposan los soportes de inasistencia del aprendiz correspondientes a los días: ${inasistencias}.`;
+                    }
+                } else {
+                    textoNarrativa = `2. Antecedentes y/o Hechos\n\nPENDIENTE DE NARRATIVA: Está pendiente de la narrativa escrita o por voz del caso relatado por el instructor.`;
+                }
+                document.getElementById('bloqueAntecedentes').value = textoNarrativa;
+            }
+
+            if (!editadoManual.b3) {
+                const bloque3 = tipificarConReglamento(tipo, relatoHechos);
+                document.getElementById('bloqueReglamento').value = bloque3;
+            }
+
+            if (!editadoManual.b4) {
+                let textoPruebas = '';
+                if (tipo === 'desercion') {
+                    textoPruebas = `RELACIÓN DE PRUEBAS\nEl Coordinador Académico cuenta con los soportes correspondientes en el aplicativo Sofia Plus.`;
+                } else if (tipo === 'academico' || tipo === 'disciplinario') {
+                    textoPruebas = `RELACIÓN DE PRUEBAS\nSe anexan los llamados de atención y plan de mejoramiento del caso.`;
+                } else {
+                    textoPruebas = `RELACIÓN DE PRUEBAS\n[Seleccione el tipo de reporte para definir la relación de pruebas]`;
+                }
+
+                const conceptoAccion = accionSol ? ` (${accionSol})` : '';
+                const bloque4 = `4. Pruebas y Concepto Final\n\n${textoPruebas}\n\nCONCEPTO DE QUIEN PRESENTA EL CASO\nTeniendo en cuenta que el aprendiz incurrió en una conducta contemplada en el Reglamento del Aprendiz SENA (Acuerdo 009 de 2024), se recomienda surtir el respectivo Comité de Evaluación y Seguimiento${conceptoAccion}.\n\nELABORÓ: Instructor ${instructor}`;
+                document.getElementById('bloqueCierre').value = bloque4;
+            }
+
+            actualizarContador();
+        }
+
+        function actualizarContador() {
+            const t1 = document.getElementById('bloqueInfoAprendiz').value;
+            const t2 = document.getElementById('bloqueAntecedentes').value;
+            const t3 = document.getElementById('bloqueReglamento').value;
+            const t4 = document.getElementById('bloqueCierre').value;
+            const totalLen = t1.length + t2.length + t3.length + t4.length + 12;
+            document.getElementById('contadorCaracteres').innerText = totalLen + ' caracteres';
+        }
+
+        // Formatea el texto plano en párrafos HTML limpios y estructurados para Word
+        function formatearSeccionParaWord(textoBruto, tituloPrincipalPorDefecto) {
+            let lineas = textoBruto.split('\n').map(l => l.trim()).filter(l => l !== '');
+            if (lineas.length === 0) return '';
+
+            let primeraLinea = lineas[0];
+            if (/^(1\.|2\.|3\.|4\.)/i.test(primeraLinea)) {
+                // Ya tiene su título correcto numerado
+            } else if (tituloPrincipalPorDefecto) {
+                lineas.unshift(tituloPrincipalPorDefecto);
+                primeraLinea = tituloPrincipalPorDefecto;
+            }
+
+            let html = `<p style="margin: 0 0 8px 0; font-weight: bold;">${primeraLinea}</p>`;
+
+            for (let i = 1; i < lineas.length; i++) {
+                let linea = lineas[i];
+                if (/^(CAPÍTULO|Artículo|RELACIÓN DE PRUEBAS|CONCEPTO DE QUIEN PRESENTA EL CASO)/i.test(linea)) {
+                    html += `<p style="margin: 10px 0 4px 0; font-weight: bold;">${linea}</p>`;
+                } else if (/^ELABORÓ:/i.test(linea)) {
+                    let partes = linea.split(':');
+                    html += `<p style="margin: 10px 0 0 0;"><b>${partes[0]}:</b>${partes.slice(1).join(':')}</p>`;
+                } else {
+                    html += `<p style="margin: 0 0 6px 0;">${linea}</p>`;
+                }
+            }
+            return html;
+        }
+
+        // Copiado individual de cada bloque con su formato enriquecido para Word
+        async function copiarBloque(idElemento, btn) {
+            if (!validarCamposObligatorios()) {
+                return;
+            }
+
+            const textarea = document.getElementById(idElemento);
+            const textoBruto = textarea.value;
+            const textPlain = textoBruto;
+            let htmlContent = '';
+
+            if (idElemento === 'bloqueInfoAprendiz') {
+                const motivoCompleto = obtenerMotivoCompleto();
+                const nombre = document.getElementById('nombreAprendiz').value.trim();
+                const doc = document.getElementById('docAprendiz').value.trim();
+                const correo = document.getElementById('correoAprendiz').value.trim();
+                const ficha = document.getElementById('fichaAprendiz').value.trim();
+                const nivel = document.getElementById('nivelFormacion').value;
+                const programa = document.getElementById('programaAprendiz').value.trim();
+                const estado = document.getElementById('estadoSofia').value.trim();
+                const instructor = document.getElementById('instructorRemite').value.trim();
+                const fechaActual = new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
+
+                htmlContent = `
+                <p style="margin: 0 0 8px 0; font-weight: bold;">1. Información del Aprendiz</p>
+                <table border="1" cellspacing="0" cellpadding="5" style="border-collapse: collapse; border: 1px solid black; width: 100%; font-family: 'Inter', Arial, sans-serif; font-size: 10.5pt;">
+                    <tr><td style="border: 1px solid black; padding: 5px 8px;"><b>MOTIVO Y/O SOLICITUD:</b> ${motivoCompleto}</td></tr>
+                    <tr><td style="border: 1px solid black; padding: 5px 8px;"><b>NOMBRES Y APELLIDOS DEL APRENDIZ:</b> ${nombre}</td></tr>
+                    <tr><td style="border: 1px solid black; padding: 5px 8px;"><b>DOCUMENTO DE IDENTIFICACIÓN:</b> ${doc}</td></tr>
+                    <tr><td style="border: 1px solid black; padding: 5px 8px;"><b>CORREO ELECTRÓNICO:</b> ${correo}</td></tr>
+                    <tr><td style="border: 1px solid black; padding: 5px 8px;"><b>FICHA:</b> ${ficha}</td></tr>
+                    <tr><td style="border: 1px solid black; padding: 5px 8px;"><b>NIVEL DE FORMACIÓN:</b> ${nivel}</td></tr>
+                    <tr><td style="border: 1px solid black; padding: 5px 8px;"><b>PROGRAMA DE FORMACIÓN:</b> ${programa}</td></tr>
+                    <tr><td style="border: 1px solid black; padding: 5px 8px;"><b>ESTADO DE APRENDIZ SOFIAPLUS:</b> ${estado}</td></tr>
+                    <tr><td style="border: 1px solid black; padding: 5px 8px;"><b>FECHA DE CONSULTA:</b> ${fechaActual}</td></tr>
+                    <tr><td style="border: 1px solid black; padding: 5px 8px;"><b>REMITE:</b> Instructor ${instructor}</td></tr>
+                </table>`;
+            } else if (idElemento === 'bloqueAntecedentes') {
+                htmlContent = formatearSeccionParaWord(textoBruto, '2. Antecedentes y/o Hechos');
+            } else if (idElemento === 'bloqueReglamento') {
+                htmlContent = formatearSeccionParaWord(textoBruto, '3. Incumplimiento Reglamento del Aprendiz (Acuerdo 009 de 2024)');
+            } else if (idElemento === 'bloqueCierre') {
+                htmlContent = formatearSeccionParaWord(textoBruto, '4. Pruebas y Concepto Final');
+            }
+
+            const fullHtml = `<div style="font-family: 'Inter', Arial, sans-serif; font-size: 11pt; color: #000000;">${htmlContent}</div>`;
+
+            try {
+                const clipboardItemData = {
+                    'text/plain': new Blob([textPlain], { type: 'text/plain' }),
+                    'text/html': new Blob([fullHtml], { type: 'text/html' })
+                };
+                await navigator.clipboard.write([new ClipboardItem(clipboardItemData)]);
+                
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> ¡Copiado!';
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                }, 1500);
+            } catch (err) {
+                navigator.clipboard.writeText(textPlain).then(() => {
+                    const originalHTML = btn.innerHTML;
+                    btn.innerHTML = '<i class="fa-solid fa-check"></i> ¡Copiado!';
+                    setTimeout(() => {
+                        btn.innerHTML = originalHTML;
+                    }, 1500);
+                });
+            }
+        }
+
+        async function copiarTodo() {
+            if (!validarCamposObligatorios()) {
+                return;
+            }
+
+            const motivoCompleto = obtenerMotivoCompleto();
+            const nombre = document.getElementById('nombreAprendiz').value.trim();
+            const doc = document.getElementById('docAprendiz').value.trim();
+            const correo = document.getElementById('correoAprendiz').value.trim();
+            const ficha = document.getElementById('fichaAprendiz').value.trim();
+            const nivel = document.getElementById('nivelFormacion').value;
+            const programa = document.getElementById('programaAprendiz').value.trim();
+            const estado = document.getElementById('estadoSofia').value.trim();
+            const instructor = document.getElementById('instructorRemite').value.trim();
+            const fechaActual = new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
+
+            const t2 = document.getElementById('bloqueAntecedentes').value.trim();
+            const t3 = document.getElementById('bloqueReglamento').value.trim();
+            const t4 = document.getElementById('bloqueCierre').value.trim();
+
+            const htmlBlock1 = `
+            <p style="margin: 0 0 8px 0; font-weight: bold;">1. Información del Aprendiz</p>
+            <table border="1" cellspacing="0" cellpadding="5" style="border-collapse: collapse; border: 1px solid black; width: 100%; font-family: 'Inter', Arial, sans-serif; font-size: 10.5pt;">
+                <tr><td style="border: 1px solid black; padding: 5px 8px;"><b>MOTIVO Y/O SOLICITUD:</b> ${motivoCompleto}</td></tr>
+                <tr><td style="border: 1px solid black; padding: 5px 8px;"><b>NOMBRES Y APELLIDOS DEL APRENDIZ:</b> ${nombre}</td></tr>
+                <tr><td style="border: 1px solid black; padding: 5px 8px;"><b>DOCUMENTO DE IDENTIFICACIÓN:</b> ${doc}</td></tr>
+                <tr><td style="border: 1px solid black; padding: 5px 8px;"><b>CORREO ELECTRÓNICO:</b> ${correo}</td></tr>
+                <tr><td style="border: 1px solid black; padding: 5px 8px;"><b>FICHA:</b> ${ficha}</td></tr>
+                <tr><td style="border: 1px solid black; padding: 5px 8px;"><b>NIVEL DE FORMACIÓN:</b> ${nivel}</td></tr>
+                <tr><td style="border: 1px solid black; padding: 5px 8px;"><b>PROGRAMA DE FORMACIÓN:</b> ${programa}</td></tr>
+                <tr><td style="border: 1px solid black; padding: 5px 8px;"><b>ESTADO DE APRENDIZ SOFIAPLUS:</b> ${estado}</td></tr>
+                <tr><td style="border: 1px solid black; padding: 5px 8px;"><b>FECHA DE CONSULTA:</b> ${fechaActual}</td></tr>
+                <tr><td style="border: 1px solid black; padding: 5px 8px;"><b>REMITE:</b> Instructor ${instructor}</td></tr>
+            </table>`;
+
+            const htmlBlock2 = formatearSeccionParaWord(t2, '2. Antecedentes y/o Hechos');
+            const htmlBlock3 = formatearSeccionParaWord(t3, '3. Incumplimiento Reglamento del Aprendiz (Acuerdo 009 de 2024)');
+            const htmlBlock4 = formatearSeccionParaWord(t4, '4. Pruebas y Concepto Final');
+
+            const fullHtml = `<div style="font-family: 'Inter', Arial, sans-serif; font-size: 11pt; color: #000000;">${htmlBlock1}<br><br>${htmlBlock2}<br><br>${htmlBlock3}<br><br>${htmlBlock4}</div>`;
+
+            const textPlainBlock1 = document.getElementById('bloqueInfoAprendiz').value;
+            const fullText = `${textPlainBlock1}\n\n\n${t2}\n\n\n${t3}\n\n\n${t4}`;
+
+            try {
+                const clipboardItemData = {
+                    'text/plain': new Blob([fullText], { type: 'text/plain' }),
+                    'text/html': new Blob([fullHtml], { type: 'text/html' })
+                };
+                await navigator.clipboard.write([new ClipboardItem(clipboardItemData)]);
+                
+                const btn = document.getElementById('btnCopiar');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> ¡Todo Copiado (Formato Solicitado)!';
+                btn.classList.add('bg-emerald-600');
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.classList.remove('bg-emerald-600');
+                }, 2000);
+            } catch (err) {
+                navigator.clipboard.writeText(fullText).then(() => {
+                    const btn = document.getElementById('btnCopiar');
+                    const originalHTML = btn.innerHTML;
+                    btn.innerHTML = '<i class="fa-solid fa-check"></i> ¡Todo Copiado!';
+                    setTimeout(() => {
+                        btn.innerHTML = originalHTML;
+                    }, 2000);
+                });
+            }
+        }
+    </script>
+</body>
+</html>
