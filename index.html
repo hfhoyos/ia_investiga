@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<meta content="#082653" name="theme-color"/>
+<title>Edificio del Conocimiento · Memorias</title>
+<style>
+:root{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:#102544;background:#071e3b}
+*{box-sizing:border-box}body{margin:0}button{font:inherit}
+.shell{min-height:100vh;display:flex;flex-direction:column}
+header{padding:12px clamp(14px,3vw,42px);display:flex;align-items:center;justify-content:space-between;gap:12px;background:#061c37;color:#fff}
+header strong{font-size:clamp(15px,1.5vw,20px)}header small{display:block;color:#b7d5f7;margin-top:3px}
+.topactions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{border:1px solid #7d9ec5;background:#173c67;color:white;border-radius:10px;padding:9px 12px;cursor:pointer}
+.btn:hover,.btn:focus-visible{background:#275887;outline:2px solid #ffe17d;outline-offset:2px}
+.stage{width:100%;max-width:1800px;margin:auto;position:relative;line-height:0;isolation:isolate;flex-shrink:0}
+.stage picture,.stage img{display:block;width:100%;height:auto;object-fit:contain}
+.hotspot{position:absolute;z-index:2;background:transparent;border:2px solid transparent;border-radius:12px;cursor:pointer;line-height:1.2;color:transparent;transition:background .18s,border-color .18s,box-shadow .18s}
+.hotspot:hover,.hotspot:focus-visible{background:rgba(255,227,86,.23);border-color:#ffe55a;box-shadow:0 0 0 3px rgba(8,28,60,.25),0 0 22px rgba(255,230,70,.75);outline:none}
+.hotspot:focus-visible::after,.hotspot:hover::after{content:attr(aria-label);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);white-space:nowrap;max-width:280px;background:#061b36;color:#fff;padding:7px 10px;border-radius:7px;font-size:12px;font-weight:700;line-height:1.3;pointer-events:none;z-index:5}
+footer{padding:12px 16px;text-align:center;background:#061c37;color:#c8d7ec;font-size:13px}
+.modal{position:fixed;inset:0;background:rgba(1,13,33,.75);z-index:10;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(6px)}
+.modal.open{display:flex}.panel{background:#fff;color:#102544;width:min(660px,100%);max-height:min(86vh,800px);overflow:auto;border-radius:20px;box-shadow:0 22px 90px #0008}
+.panelhead{padding:22px 24px;background:linear-gradient(115deg,#0b356c,#086c92);color:#fff;display:flex;align-items:start;justify-content:space-between;gap:12px}
+.panelhead h2{margin:5px 0 0;font-size:clamp(21px,3vw,28px)}.eyebrow{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:#c6e5ff}
+.close{background:#ffffff24;border:1px solid #ffffff65;border-radius:9px;color:#fff;padding:6px 11px;cursor:pointer;font-size:23px}
+.panelbody{padding:24px}.empty{border:1px dashed #9eb5cb;background:#f4f8fc;border-radius:14px;padding:25px;text-align:center}
+.empty .symbol{font-size:36px;margin-bottom:9px}.empty h3{margin:0 0 8px}.empty p{margin:0;color:#4b647c;line-height:1.6}
+.meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}.pill{border-radius:100px;background:#e6f1fb;color:#184e7e;padding:6px 11px;font-size:12px;font-weight:700}
+.navlist{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:9px;margin-top:18px}
+.navlist button{border:1px solid #b6cde2;background:white;border-radius:10px;padding:12px;text-align:left;color:#17406c;cursor:pointer;font-weight:700}
+.navlist button:hover{background:#e8f5ff}.help{max-width:1000px;margin:0 auto;padding:15px 20px 20px;color:#dbeaff;line-height:1.6;text-align:center}
+@media(max-width:650px){header{align-items:flex-start;flex-direction:column}.topactions .btn{font-size:12px;padding:7px 9px}.hotspot{border-radius:7px}.hotspot:hover::after,.hotspot:focus-visible::after{font-size:10px;white-space:normal;min-width:120px}.panelbody{padding:17px}.panelhead{padding:18px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+.presentation-card{padding:6px 0 4px;line-height:1.65}
+.presentation-date{font-size:12px;font-weight:800;letter-spacing:.055em;color:#1876a2;margin:0 0 10px}
+.presentation-card h3{font-size:21px;line-height:1.3;margin:0 0 13px;color:#102d57}
+.presentation-card p{line-height:1.7}
+.presentation-link{display:block;text-align:center;text-decoration:none;border-radius:12px;padding:15px 20px;background:linear-gradient(100deg,#064d9e,#0875c6);color:white;font-weight:800;margin-top:22px}
+.presentation-link:hover,.presentation-link:focus-visible{background:#06477d;outline:3px solid #f5cb44;outline-offset:3px}
+.presentation-note{color:#5b6f85;font-size:12px;text-align:center;margin:12px 0 0}
+.secondary-link{background:linear-gradient(100deg,#125c48,#16865b);margin-top:12px}
+.secondary-link:hover,.secondary-link:focus-visible{background:#105a44}
+.resource-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:18px 0}.resource-card{border:1px solid #b7d8c2;background:#f2faf4;border-radius:14px;padding:17px;line-height:1.55}.resource-card h4{margin:7px 0;color:#14532d}.resource-card p{margin:0;font-size:14px;color:#385568}.drive-link{background:linear-gradient(100deg,#11622e,#149b56)}.drive-link:hover{background:#0c5728}@media(max-width:480px){.resource-grid{grid-template-columns:1fr}}
+.document-outline{margin-top:18px;border-top:1px solid #d4e4ed;padding-top:12px}.document-outline>h4{font-size:17px;margin:4px 0 12px}.outline-item{border-left:3px solid #3e9679;padding:8px 12px;margin:10px 0;background:#f4f9f7;border-radius:0 8px 8px 0}.outline-item h5{margin:0 0 4px;font-size:14px;color:#15513e}.outline-item p{margin:0;font-size:13px;line-height:1.55;color:#344d60}
+
+#integratedTools{--ink:#102b50;--muted:#526780;--green:#087e43;--blue:#176ec4;--line:#d8e5f1;--bg:#f0f6fb;--shadow:0 14px 38px #102b5016;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink)}
+#integratedTools *{box-sizing:border-box}
+#integratedTools{margin:0;background:var(--bg)}
+#integratedTools button,#integratedTools a{font:inherit}
+#integratedTools button{cursor:pointer}
+#integratedTools button:focus-visible,#integratedTools a:focus-visible,#integratedTools textarea:focus-visible,#integratedTools input:focus-visible{outline:3px solid #f3b521;outline-offset:3px}
+#integratedTools .hidden{display:none!important}
+#integratedTools #inicio{min-height:100svh;background:#071e3d;display:grid;place-items:end center;position:relative;padding:22px}
+#integratedTools #inicio picture,#integratedTools #inicio picture img{position:absolute;inset:0;width:100%;height:100%}
+#integratedTools #inicio picture img{object-fit:contain}
+#integratedTools .enter{position:relative;z-index:1;border:0;border-radius:100px;background:linear-gradient(105deg,#087b3b,#47bf20);color:#fff;font-weight:850;letter-spacing:.05em;padding:17px 38px;box-shadow:0 9px 30px #0008;margin-bottom:2vh}
+#integratedTools .enter:hover{filter:brightness(1.08)}
+#integratedTools .banner{display:block;width:100%;aspect-ratio:5/1;object-fit:cover}
+#integratedTools .sticky-banner{position:sticky;top:0;z-index:4;box-shadow:0 3px 15px #092a4b20}
+#integratedTools .wrap{max-width:1200px;margin:auto;padding:28px 22px 65px}
+#integratedTools .topline{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#integratedTools .eyebrow{color:var(--green);font-size:.9rem;font-weight:850}
+#integratedTools .secondary{background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:100px;padding:10px 16px;font-weight:750}
+#integratedTools .intro h1{font-size:clamp(2rem,4.5vw,3.5rem);letter-spacing:-.045em;margin:8px 0}
+#integratedTools .intro p{color:var(--muted);margin:0 0 22px}
+#integratedTools .floors{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:24px 0 28px}
+#integratedTools .floor{border:2px solid var(--line);background:white;border-radius:17px;padding:18px 8px;display:flex;flex-direction:column;align-items:center;gap:5px;color:var(--ink);box-shadow:var(--shadow);transition:.2s}
+#integratedTools .floor:hover,#integratedTools .room:hover{transform:translateY(-3px)}
+#integratedTools .floor .emoji{font-size:1.7rem}
+#integratedTools .floor small{color:var(--muted)}
+#integratedTools .floor[aria-pressed="true"]{border-color:var(--tone);background:color-mix(in srgb,var(--tone) 8%,white)}
+#integratedTools .selected{border-left:5px solid var(--tone);padding-left:15px;margin:0 0 20px}
+#integratedTools .selected span{font-weight:850;color:var(--tone);font-size:.9rem}
+#integratedTools .selected h2{margin:5px 0;font-size:clamp(1.5rem,3vw,2rem)}
+#integratedTools .selected p{margin:0;color:var(--muted)}
+#integratedTools .rooms{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:17px}
+#integratedTools .room{border:1px solid var(--line);background:#fff;border-radius:19px;padding:0;overflow:hidden;text-align:left;color:var(--ink);box-shadow:var(--shadow);transition:.2s}
+#integratedTools .room-art{height:145px;background:linear-gradient(130deg,#d5eaf9,#e3f7ed);display:grid;place-items:center;font-size:3.5rem;position:relative}
+#integratedTools .room:nth-child(2) .room-art{background:linear-gradient(130deg,#fff0cf,#dceffd)}
+#integratedTools .room:nth-child(3) .room-art{background:linear-gradient(130deg,#e5e4ff,#d9f7f2)}
+#integratedTools .room:nth-child(4) .room-art{background:linear-gradient(130deg,#dff7e7,#e5edff)}
+#integratedTools .tag{position:absolute;top:12px;right:12px;background:white;border-radius:30px;padding:6px 10px;font-size:.7rem;font-weight:800;color:#66541a}
+#integratedTools .room-info{padding:18px;display:flex;align-items:center;gap:8px}
+#integratedTools .room-info strong{display:block;font-size:1rem}
+#integratedTools .room-info small{display:block;margin-top:6px;color:var(--muted);line-height:1.4}
+#integratedTools .arrow{margin-left:auto;font-size:1.7rem}
+#integratedTools .footer{text-align:center;color:#74849a;font-size:.85rem;margin-top:40px}
+#integratedTools #roomView{min-height:100svh;background:linear-gradient(145deg,#eaf4fd,#fff 48%,#eaf6f0)}
+#integratedTools .room-head{background:linear-gradient(110deg,#0c3e75,#086c51);color:white;padding:18px max(22px,calc((100vw - 1160px)/2));display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+#integratedTools .room-head .secondary{background:#ffffff1b;color:white;border-color:#ffffff66}
+#integratedTools .room-shell{max-width:1160px;margin:auto;padding:30px 22px 70px}
+#integratedTools .room-kicker{color:var(--green);font-weight:850;font-size:.9rem}
+#integratedTools .room-title{font-size:clamp(2rem,4vw,3.2rem);line-height:1.13;margin:8px 0}
+#integratedTools .room-lead{color:var(--muted);font-size:1.06rem;max-width:820px}
+#integratedTools .tabs{display:flex;flex-wrap:wrap;gap:9px;margin:28px 0 20px;border-bottom:1px solid var(--line);padding-bottom:15px}
+#integratedTools .tab{border:1px solid #cbdce9;background:white;border-radius:100px;padding:11px 17px;font-weight:750;color:var(--ink)}
+#integratedTools .tab[aria-selected="true"]{background:var(--green);color:white;border-color:var(--green)}
+#integratedTools .panel{background:white;border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:clamp(18px,3vw,32px);min-height:280px}
+#integratedTools .panel h2{margin-top:0}
+#integratedTools .panel h3{color:#1465aa}
+#integratedTools .panel p,#integratedTools .panel li{line-height:1.7}
+#integratedTools .panel li{margin-bottom:8px}
+#integratedTools .resource-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:13px;margin:18px 0}
+#integratedTools .resource{border:1px solid var(--line);border-radius:14px;background:#f8fbfe;padding:17px}
+#integratedTools .resource h3{margin:0 0 8px;font-size:1.05rem}
+#integratedTools .resource p{margin:0;color:var(--muted);font-size:.9rem}
+#integratedTools .notice{border-left:4px solid #f0a529;background:#fff8e8;padding:15px 18px;border-radius:0 12px 12px 0;margin:18px 0}
+#integratedTools .activity{background:#f6fbf8;border:1px solid #cce8d6;border-radius:15px;padding:20px;margin:16px 0}
+#integratedTools .activity h3{margin-top:0}
+#integratedTools .field{display:block;font-weight:700;margin:16px 0 7px}
+#integratedTools .text-field{display:block;width:100%;border:1px solid #b8cbdc;border-radius:11px;padding:12px;min-height:110px;resize:vertical;font:inherit}
+#integratedTools .actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}
+#integratedTools .primary{border:0;background:var(--green);color:white;border-radius:11px;padding:11px 18px;font-weight:750}
+#integratedTools .outline{border:1px solid #cbdce9;background:white;color:var(--ink);border-radius:11px;padding:11px 18px;font-weight:750}
+#integratedTools .status{color:var(--green);font-weight:700;min-height:1.3em;margin-top:10px}
+#integratedTools .crumb{font-size:.88rem;opacity:.88}
+#integratedTools .empty-state{text-align:center;padding:40px 15px}
+#integratedTools .empty-state .big{font-size:3rem}
+#integratedTools .progress{display:inline-block;border-radius:100px;background:#e8f5ee;color:#0a6e3a;padding:5px 12px;font-weight:800;font-size:.8rem}
+#integratedTools .level-switch{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+#integratedTools .level-btn{background:#f1f6fc;border:1px solid #cbdce9;color:var(--ink);border-radius:12px;padding:10px 12px;font-weight:750}
+#integratedTools .level-btn[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:white}
+#integratedTools .level-detail{border:1px solid var(--line);background:#f8fbfe;border-radius:16px;padding:20px}
+#integratedTools .tool-links{display:flex;flex-wrap:wrap;gap:9px}
+#integratedTools .tool-links a{border:1px solid #b8d8ee;border-radius:100px;padding:8px 12px;background:#fff;color:#075c99;text-decoration:none;font-weight:700}
+#integratedTools .tool-links a:hover{text-decoration:underline}
+#integratedTools .external-resource{display:inline-block;background:#087e43;color:#fff!important;border-radius:10px;padding:10px 14px;text-decoration:none;font-weight:750;margin-top:7px}
+#integratedTools .external-resource:hover{filter:brightness(1.1)}
+#integratedTools .helper-note{font-size:.85rem;color:var(--muted)}
+@media (max-width:700px){#integratedTools #inicio{padding:15px}
+#integratedTools .enter{width:min(94%,390px);margin-bottom:12px}
+#integratedTools .sticky-banner{position:static}
+#integratedTools .wrap{padding:22px 15px 50px}
+#integratedTools .floors{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+#integratedTools .floor:last-child{grid-column:1/-1}
+#integratedTools .floor{padding:12px}
+#integratedTools .rooms{grid-template-columns:1fr;gap:12px}
+#integratedTools .room{display:flex;min-height:112px}
+#integratedTools .room-art{width:34%;height:auto;min-height:112px;flex-shrink:0;font-size:2.5rem}
+#integratedTools .tag{top:5px;right:5px;font-size:.6rem;padding:4px 6px}
+#integratedTools .room-info{flex:1;padding:12px}
+#integratedTools .room-head{padding:15px}
+#integratedTools .room-shell{padding:22px 15px 50px}
+#integratedTools .tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+#integratedTools .tab{padding:10px 7px;font-size:.83rem}
+#integratedTools .panel{padding:17px}
+#integratedTools .topline .secondary{font-size:.82rem}}
+#integratedTools .empathy-figure{margin:20px 0 24px}
+#integratedTools .empathy-figure img{display:block;width:100%;height:auto;object-fit:contain;border-radius:14px;border:1px solid var(--line);background:#fff}
+#integratedTools .empathy-figure figcaption{margin-top:8px;color:var(--muted);font-size:.9rem;text-align:center}
+#integratedTools .empathy-figure.image-missing{display:none}
+#integratedTools .presentation-image{display:block;width:100%;height:auto;object-fit:contain;border-radius:14px;border:1px solid var(--line);background:#fff}
+@media (prefers-reduced-motion:reduce){#integratedTools *,#integratedTools *::before,#integratedTools *::after{scroll-behavior:auto!important;transition:none!important}}
+#integratedTools .content-section{background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:clamp(18px,3vw,32px);margin:22px 0}
+#integratedTools .content-section h2{font-size:clamp(1.45rem,2.7vw,2rem);margin:0 0 12px}
+#integratedTools .content-section p{line-height:1.7}
+#integratedTools .section-eyebrow{font-weight:800;color:var(--green);font-size:.85rem;letter-spacing:.06em;text-transform:uppercase;margin-bottom:7px}
+#integratedTools .figure{margin:22px 0}
+#integratedTools .figure img{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:15px;background:#f8fbfe}
+#integratedTools .figure figcaption{font-size:.9rem;color:var(--muted);margin-top:9px;text-align:center}
+#integratedTools .figure-missing{display:none}
+#integratedTools .cognitive-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(235px,1fr));gap:12px;margin-top:18px}
+#integratedTools .cognitive-card{border:1px solid var(--line);border-radius:14px;padding:18px;background:#f8fbfe}
+#integratedTools .cognitive-card strong{color:#1465aa}
+#integratedTools .cognitive-card p{margin:8px 0 0;color:var(--muted)}
+#integratedTools .tools-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px;margin-top:20px}
+#integratedTools .tools-card{border:1px solid var(--line);border-radius:15px;padding:18px;background:#f8fbfe}
+#integratedTools .tools-card h3{margin:0 0 12px;color:#1465aa}
+#integratedTools .tools-card .tool-links{gap:7px}
+#integratedTools .tools-card .tool-links a{font-size:.88rem}
+#integratedTools .level-detail h3{color:#1465aa}
+#integratedTools .level-btn:focus-visible{outline:3px solid #f3b521;outline-offset:2px}
+#integratedTools .content-section{scroll-margin-top:20px}
+@media (max-width:700px){#integratedTools .tools-grid{grid-template-columns:1fr}
+#integratedTools .content-section{margin:14px 0}
+#integratedTools .figure{margin:14px 0}}
+#integratedTools .mode-switch{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0}
+#integratedTools .mode-btn{border:2px solid var(--line);border-radius:13px;padding:13px 20px;background:#fff;color:var(--ink);font-weight:800}
+#integratedTools .mode-btn[aria-pressed="true"]{background:var(--green);color:white;border-color:var(--green)}
+#integratedTools .mode-btn:focus-visible{outline:3px solid #f3b521;outline-offset:3px}
+#integratedTools .inline-tools{margin-top:14px;padding:14px;border-radius:12px;background:#eef6fc}
+#integratedTools .inline-tools h4{margin:0 0 10px;color:#1465aa}
+#integratedTools .tools-card p{color:var(--muted);line-height:1.55}
+#integratedTools .tools-card[hidden],#integratedTools .content-section[hidden]{display:none!important}
+
+#integratedTools{display:none;min-height:100vh;background:#f0f6fb;line-height:1.5;}
+#integratedTools.active{display:block;}
+#integratedTools .room-head{position:sticky;top:0;z-index:8;}
+#integratedTools button{cursor:pointer;}
+#integratedTools .content-section[hidden]{display:none!important;}
+
+
+/* Portada de bienvenida y recursos del evento */
+#welcomeScreen[hidden]{display:none!important}
+#welcomeScreen{min-height:100svh;background:#071e3d;position:relative;display:grid;place-items:end center;padding:22px;isolation:isolate}
+#welcomeScreen picture,#welcomeScreen picture img{position:absolute;inset:0;width:100%;height:100%}
+#welcomeScreen picture img{object-fit:contain}
+#welcomeScreen .welcome-enter{position:relative;z-index:1;border:0;border-radius:100px;background:linear-gradient(105deg,#087b3b,#47bf20);color:white;font-weight:850;letter-spacing:.05em;padding:17px 38px;box-shadow:0 9px 30px #0008;cursor:pointer;margin-bottom:2vh}
+#welcomeScreen .welcome-enter:hover,#welcomeScreen .welcome-enter:focus-visible{filter:brightness(1.1);outline:3px solid #ffe17d;outline-offset:3px}
+.shell.is-hidden{display:none}
+.event-figure{margin:14px 0 4px}.event-figure img{width:100%;height:auto;display:block;border:1px solid #d8e5f1;border-radius:13px;background:#f8fbfe;cursor:zoom-in}
+.event-figure figcaption{font-size:12px;color:#5b6f85;text-align:center;margin-top:10px;line-height:1.5}
+@media(max-width:700px){#welcomeScreen{padding:15px}#welcomeScreen .welcome-enter{width:min(94%,390px);margin-bottom:12px}}
+
+/* Mapa interactivo de recorridos */
+.modal:has(.learning-map) .panel{width:min(1040px,100%)}.learning-map{line-height:1.55}.learning-map-intro{color:#4b647c;margin:0 0 16px}.learning-map-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.learning-map-tabs button{border:1px solid #9ab9d3;border-radius:999px;background:#f0f7fd;color:#17406c;padding:9px 15px;cursor:pointer;font-weight:750}.learning-map-tabs button[aria-selected="true"]{background:#0b5d83;color:white;border-color:#0b5d83}.learning-map-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}.learning-map-item{display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-height:91px;border:1px solid #c1d6e6;border-radius:12px;background:#f8fbff;color:#123e63;padding:13px;text-align:left;cursor:pointer}.learning-map-item strong{font-size:14px}.learning-map-item small{font-size:12px;line-height:1.4;color:#536e82}.learning-map-item:hover,.learning-map-item:focus-visible{background:#e6f5ff;border-color:#1673a8;outline:2px solid #f3c84c;outline-offset:1px}.learning-map-item:disabled{opacity:.5;cursor:not-allowed;background:#edf1f5}.learning-map-bridges{border-top:1px solid #d5e5ef;margin-top:20px;padding-top:14px}.learning-map-bridges h3{margin:0 0 10px;font-size:17px}.learning-map-hint{font-size:12px;color:#60778b;margin-top:12px}
+</style>
+</head>
+<body>
+<section id="welcomeScreen" aria-label="Bienvenida al evento"><picture><source media="(max-width:700px)" srcset="assets/poster_vertical.png"><img src="assets/poster_horizontal.png" alt="Póster de bienvenida al evento de investigación pedagógica e inteligencia artificial"></picture><button type="button" class="welcome-enter" id="enterMemories">VER MEMORIAS →</button></section>
+<div class="shell is-hidden">
+<header>
+<div><strong>Edificio del Conocimiento</strong><small>Memorias · Investigación Pedagógica × Inteligencia Artificial</small></div>
+<div class="topactions"><button class="btn" id="helpBtn">¿Cómo navegar?</button><button class="btn" id="directoryBtn">Directorio de espacios</button></div>
+</header>
+<main>
+<div class="stage" id="stage">
+<picture><source media="(max-width: 700px)" srcset="./assets/frontVertical.png"/><img alt="Edificio del Conocimiento: dos torres de cinco pisos conectadas por cinco puentes, recepción y menú de navegación." height="1024" src="./assets/frontHorizontal.png" width="1536"/></picture>
+<div id="hotspots"></div>
+</div>
+<p class="help">Selecciona un piso de las torres, un puente o los accesos inferiores. «Objetivos del Evento» muestra el objetivo de la convocatoria y «Agenda del evento» presenta la agenda de la semana.</p>
+</main>
+<footer>Prototipo de navegación · Torre A: pisos 1 a 4 · Torre B: pisos 1 a 4 · Puente P1 · HTML, CSS y JavaScript vanilla</footer>
+</div>
+<div aria-labelledby="modalTitle" aria-modal="true" class="modal" id="modal" role="dialog">
+<div class="panel">
+<div class="panelhead"><div><div class="eyebrow" id="modalEyebrow">Espacio</div><h2 id="modalTitle">Habitación</h2></div><button aria-label="Cerrar" class="close" id="closeBtn">×</button></div>
+<div class="panelbody"><div class="meta" id="modalMeta"></div><div id="modalContent"></div></div>
+</div>
+</div>
+<script>
+"use strict";
+/* CONTENIDOS EDITABLES: en una próxima fase, añadir habitaciones a cada espacio. */
+const floorsA=[
+["Fundamentación","Investigación aplicada y pedagógica en el SENA"],
+["Comprensión","Problema, pregunta y pertinencia"],
+["Experimentación","Metodología, técnicas e instrumentos"],
+["Aplicación","Desarrollo del proyecto de investigación"],
+["Transferencia","Resultados, evidencias e impacto"]
+];
+const floorsB=[
+["Fundamentos de IA","Conceptos, alcances, limitaciones y ética"],
+["Modelos y prompts","LLM, taxonomía emergente y buenas prácticas"],
+["Artefactos","Vibe Coding, HTML/CSS/JS y prototipos"],
+["Integración","APIs, funcionalidades y automatización"],
+["Publicación y trazabilidad","Memorias, repositorios y socialización"]
+];
+const bridges=[
+"Creación de Repositorio","Modelado y diseño","Creación de artefactos",
+"Desarrollo e implementación","Socialización y Memoria"
+];
+const DRIVE_TORRE_A_PISO_1 = 'https://drive.google.com/drive/u/0/folders/1WxpX3Ks24VYqW68xF_IIJLkjBHLkMo1m';
+const PRESENTACION_PUENTE_P1 = 'https://docs.google.com/presentation/d/e/2PACX-1vRearXzcMp8tH8C51OphTFmIa3pzxdOUoYZ_qJxG5O8CCLt6_jAvXv3VUlxEORnKzO7fMDIR9pZ3yiN/pub?start=true&loop=true&delayms=60000&slide=id.p21';
+const VIDEO_PUENTE_P1 = 'https://www.youtube.com/watch?v=vsvKS52CbYc';
+const TUTORIAL_TURBOSCRIBE = 'https://docs.google.com/presentation/d/e/2PACX-1vQ2wPayGHL23PTg2YOg4OohaADy5uQj5ch6K1JBwT2kqhO18cBBj9vSnFPJtTEWtNga0mY8YSyFM-PC/pub?start=true&loop=true&delayms=60000&slide=id.p1';
+const PRESENTACION_DIA_4 = 'https://docs.google.com/presentation/d/e/2PACX-1vQXuAulKjo4IOgQPSE-FzYdQDgnucVmdOe73nB245z2a0gsmjiYovvxyxujdv1PiI-Gt1kC2SMw9Xvc/pub?start=true&loop=true&delayms=60000&slide=id.p1';
+const PRESENTACION_DIA_3 = 'https://docs.google.com/presentation/d/e/2PACX-1vTX13tfjN68SYfArYnAa5QgmBqkL2CXG37WnJC5QXdvxe6_W70NwXNYJuIxH9GiD246JxfMfVTS5MBo/pub?start=true&loop=true&delayms=60000&slide=id.p1';
+const PRESENTACION_DIA_2 = 'https://docs.google.com/presentation/d/e/2PACX-1vSRcnR3UPwcrc4iUbNDZsQIsmpdydHq0-BNvzQDqqUAMqmXdnRpW1l1XJJPrl-dXV2IycCIrXLhvMB4/pub?start=true&loop=true&delayms=60000&slide=id.p1';
+const PRESENTACION_DIA_1 = 'https://docs.google.com/presentation/d/e/2PACX-1vRv92uqaNqPJe_wktUfAbGQF-0ZRFf5XSNczPf1g2UApNLtE3lk7u1-U7GOy0rpTUwfapkgSzfcSCcD/pub?start=true&loop=true&delayms=60000&slide=id.p1';
+const TRABAJOS_GRUPOS = 'https://drive.google.com/drive/u/0/folders/128unGbttCUzAOAWLTy2ixkZwK0BjfH1G';
+const PROMPT_CLAUDE_GEMINI = 'https://docs.google.com/document/d/1H8Vkxhilcy1O_HBL9fDV6voQfMhObG_OxOrvQdIiXB8/edit?usp=sharing';
+const EJEMPLO_CLAUDE = 'https://hfhoyos.github.io/appinvestiga/final_claude.html';
+const EJEMPLO_GEMINI = 'https://hfhoyos.github.io/appinvestiga/final_gemini.html';
+const spaces={};
+for(let n=1;n<=5;n++){
+ spaces["A"+n]={id:"A"+n,group:"Torre A · Investigación Pedagógica",title:"Piso "+n+" · "+floorsA[n-1][0],description:floorsA[n-1][1],type:"Piso",rooms:[]};
+ spaces["B"+n]={id:"B"+n,group:"Torre B · Aplicación de IA",title:"Piso "+n+" · "+floorsB[n-1][0],description:floorsB[n-1][1],type:"Piso",rooms:[]};
+ spaces["P"+n]={id:"P"+n,group:"Puentes de integración",title:(n===5?"Puente 5 · ":"P"+n+" · ")+bridges[n-1],description:"Experiencia compartida entre las dos torres",type:"Puente",rooms:[]};
+}
+for(const [key,title] of Object.entries({
+recepcion:"Recepción · Orientación",recorridos:"Recorridos de aprendizaje",
+habitaciones:"Objetivos del Evento",github:"GitHub como puente",
+agenda:"Agenda de la semana",memorias:"Memorias y evidencias"
+})){spaces[key]={group:"Servicios del edificio",title,description:"Espacio de navegación",type:"Servicio",rooms:[]};}
+/* Coordenadas en porcentajes de cada imagen; se pueden ajustar sin cambiar el HTML. */
+const horizontal={
+ A:[[12.5,67.2,19,9],[12.5,57.0,19,9],[12.5,46.7,19,9],[12.5,36.5,19,9],[12.5,26.2,19,9]],
+ B:[[68.6,67.2,20,9],[68.6,57.0,20,9],[68.6,46.7,20,9],[68.6,36.5,20,9],[68.6,26.2,20,9]],
+ P:[[37.5,64.0,25,9],[41.5,55.0,17,5.8],[41.5,45.0,17,5.8],[41.5,35.3,17,5.8],[41.5,28.5,17,5.8]],
+ recepcion:[37,73.5,27,4.4],
+ recorridos:[4.5,92,19.5,6.5],habitaciones:[25,92,24,6.5],
+ agenda:[50.5,92,22,6.5],memorias:[74,92,21.5,6.5]
+};
+/* Ambas imágenes suministradas tienen formato 1536 × 1024; comparten geometría. */
+const vertical={...horizontal};
+const modal=document.getElementById("modal"),previousFocus={el:null};
+function show(id){
+ if(id==="A5"||id==="B5")return;
+ if(id==="A3"){openToolsFloor();return;}
+ if(id==="habitaciones"){showEventResource("objetivo");return}
+ if(id==="recorridos"){showLearningMap();return}
+ if(id==="memorias"){show("P5");return}
+ if(id==="agenda"){showEventResource("agenda");return}
+  if(id==="github"){id="P1"}
+ if(id==="recorridos"||id==="agenda"||id==="memorias"||id==="recepcion"){
+   showSpace(spaces[id]);return;
+ }
+ showSpace(spaces[id]);
+}
+function showSpace(s){
+ if(!s)return;
+ previousFocus.el=document.activeElement;
+ document.getElementById("modalEyebrow").textContent=s.group;
+ document.getElementById("modalTitle").textContent=s.title;
+ document.getElementById("modalMeta").innerHTML="";
+ const meta=document.getElementById("modalMeta");
+ for(const label of [s.type,s.description]){const span=document.createElement("span");span.className="pill";span.textContent=label;meta.append(span)}
+ const content=document.getElementById("modalContent");content.replaceChildren();
+ if(s.id==="P5"){
+   const card=document.createElement("article");card.className="presentation-card";
+   const date=document.createElement("p");date.className="presentation-date";date.textContent="CIERRE · SOCIALIZACIÓN Y MEMORIA";
+   const heading=document.createElement("h3");heading.textContent="⚖️ Artefacto final · Claude vs. Gemini";
+   const intro=document.createElement("p");intro.textContent="Un mismo prompt, dos artefactos publicados: explora, contrasta, verifica y arbitra sus diferencias.";
+   const explanation=document.createElement("p");explanation.textContent="El ejercicio propone comparar dos implementaciones de una Ficha de Proyecto de Investigación Pedagógica creadas a partir de las mismas instrucciones. Se valoran fidelidad al prompt, funcionalidad, experiencia de usuario, desviaciones y decisiones de mejora con criterio humano.";
+   const grid=document.createElement("div");grid.className="resource-grid";
+   for(const item of [
+     {icon:"📄",title:"Prompt original",text:"Consulta las instrucciones comunes utilizadas para generar ambos artefactos.",url:PROMPT_CLAUDE_GEMINI,action:"Abrir prompt"},
+     {icon:"🟠",title:"Ejemplo Claude",text:"Explora el artefacto publicado y comprueba sus funciones.",url:EJEMPLO_CLAUDE,action:"Ver artefacto Claude"},
+     {icon:"🔵",title:"Ejemplo Gemini",text:"Explora el segundo artefacto y contrasta sus resultados.",url:EJEMPLO_GEMINI,action:"Ver artefacto Gemini"},
+     {icon:"📂",title:"Trabajos de los grupos",text:"Consulta los trabajos y evidencias compartidos por los equipos participantes.",url:TRABAJOS_GRUPOS,action:"Consultar trabajos de los grupos"}
+   ]){
+     const tile=document.createElement("section");tile.className="resource-card";
+     const symbol=document.createElement("div");symbol.textContent=item.icon;symbol.style.fontSize="28px";
+     const title=document.createElement("h4");title.textContent=item.title;
+     const text=document.createElement("p");text.textContent=item.text;
+     const link=document.createElement("a");link.className="presentation-link drive-link";link.href=item.url;link.target="_blank";link.rel="noopener noreferrer";link.textContent="↗ "+item.action;
+     tile.append(symbol,title,text,link);grid.append(tile);
+   }
+   const note=document.createElement("p");note.className="presentation-note";note.textContent="Ruta de análisis: explorar → contrastar → verificar → arbitrar. El acceso a los trabajos depende de los permisos de la carpeta compartida.";
+   card.append(date,heading,intro,explanation,grid,note);content.append(card);
+   modal.classList.add("open");document.getElementById("closeBtn").focus();return;
+ }
+ if(s.group.startsWith("Torre A") && s.title.startsWith("Piso 1")){
+   const card=document.createElement("article");card.className="presentation-card";
+   const date=document.createElement("p");date.className="presentation-date";date.textContent="DÍA 1 · LUNES 9 DE NOVIEMBRE DE 2026";
+   const heading=document.createElement("h3");heading.textContent="Identificación y planteamiento del problema de investigación pedagógica";
+   const desc=document.createElement("p");desc.textContent="La jornada inicia con los fundamentos de la investigación pedagógica en el contexto del SENA y su diferenciación frente a la investigación aplicada. Se exploran los intereses de investigación, las situaciones problemáticas del contexto educativo y los criterios para reconocer, formular y delimitar un problema pertinente. También se aborda el planteamiento cualitativo, considerando preguntas de investigación, justificación, viabilidad y contexto.";
+   const grid=document.createElement("div");grid.className="resource-grid";
+   for(const item of [
+     {icon:"📋",title:"Documento 1 · Identificación del problema",text:"Guía orientadora de preguntas para reconocer una situación problemática, sus causas, consecuencias, actores y pertinencia investigativa."},
+     {icon:"📖",title:"Documento 2 · Fundamentación metodológica",text:"Lectura de Hernández-Sampieri, capítulo 12: planteamiento del problema cualitativo, objetivos, preguntas, justificación y viabilidad."}
+   ]){
+     const tile=document.createElement("section");tile.className="resource-card";
+     const symbol=document.createElement("div");symbol.textContent=item.icon;symbol.style.fontSize="28px";
+     const title=document.createElement("h4");title.textContent=item.title;
+     const text=document.createElement("p");text.textContent=item.text;
+     tile.append(symbol,title,text);grid.append(tile);
+   }
+   const action=document.createElement("a");action.className="presentation-link drive-link";action.href=DRIVE_TORRE_A_PISO_1;action.target="_blank";action.rel="noopener noreferrer";action.textContent="↗ Abrir Google Drive · Consultar y descargar los documentos";
+   const note=document.createElement("p");note.className="presentation-note";note.textContent="Las tarjetas son referencias informativas. Los archivos se consultan y descargan desde la carpeta de Google Drive, según sus permisos de acceso.";
+   card.append(date,heading,desc,grid,action,note);content.append(card);
+   modal.classList.add("open");document.getElementById("closeBtn").focus();return;
+ }
+ if(s.id==="A2"){
+   const card=document.createElement("article");card.className="presentation-card";
+   const date=document.createElement("p");date.className="presentation-date";date.textContent="DÍA 2 · MARTES 10 DE NOVIEMBRE DE 2026";
+   const heading=document.createElement("h3");heading.textContent="De la identificación del problema a la formulación del proyecto";
+   const desc=document.createElement("p");desc.textContent="Esta jornada se dedica a estructurar una propuesta de investigación pedagógica coherente, pertinente y viable. A partir del problema identificado, se organiza la pregunta de investigación, la justificación, los antecedentes, el referente conceptual, los objetivos, la metodología, el cronograma y las referencias bibliográficas.";
+   const resource=document.createElement("section");resource.className="resource-card";
+   const symbol=document.createElement("div");symbol.style.fontSize="28px";symbol.textContent="📄";
+   const title=document.createElement("h4");title.textContent="Documento orientador · Guía para la presentación del proyecto de investigación";
+   const explanation=document.createElement("p");explanation.textContent="Contiene ocho apartados: título; resumen (máximo 500 palabras, elaborado al finalizar el proyecto); descripción del proyecto (planteamiento, pregunta, justificación y antecedentes); referente conceptual; objetivos (máximo 500 palabras); metodología propuesta (máximo 3000 palabras); cronograma de actividades y bibliografía citada.";
+   resource.append(symbol,title,explanation);
+   const sections=[
+     ["1. Título del proyecto","Nombre que identifica el proyecto de investigación."],
+     ["2. Resumen del proyecto · máximo 500 palabras","Se elabora al finalizar el proyecto. Debe sintetizar el problema, marco teórico, objetivos, metodología y resultados esperados, mostrando pertinencia y calidad."],
+     ["3. Descripción del proyecto","3.1 Planteamiento: naturaleza y magnitud del problema, contexto teórico, estado del conocimiento, brechas y contribución esperada. 3.2 Formulación: pregunta de investigación. 3.3 Justificación: necesidad, pertinencia y aporte al conocimiento. 3.4 Antecedentes: investigaciones internacionales, latinoamericanas y nacionales."],
+     ["4. Referente conceptual","Representar mediante mapa conceptual, diagrama o plano gnoseológico las relaciones e interrelaciones entre los conceptos o categorías del estudio."],
+     ["5. Objetivos · máximo 500 palabras","Formular un solo objetivo general coherente con el problema y los objetivos específicos necesarios, claros, viables y alcanzables con la metodología. No confundir objetivos con actividades o procedimientos."],
+     ["6. Metodología propuesta · máximo 3000 palabras","Explicar de forma organizada cómo se alcanzará cada objetivo específico: enfoque metodológico, procedimientos, técnicas, actividades, recolección, organización, sistematización, análisis, interpretación y presentación de resultados, así como recursos requeridos."],
+     ["7. Cronograma de actividades","Relacionar las actividades con el tiempo de ejecución del proyecto, expresado en meses."],
+     ["8. Bibliografía","Incluir únicamente las fuentes citadas en el texto."]
+   ];
+   const details=document.createElement("div");details.className="document-outline";
+   const label=document.createElement("h4");label.textContent="Estructura de la guía";details.append(label);
+   for(const [name,body] of sections){const item=document.createElement("section");item.className="outline-item";const h=document.createElement("h5");h.textContent=name;const t=document.createElement("p");t.textContent=body;item.append(h,t);details.append(item)}
+   resource.append(details);
+   const action=document.createElement("a");action.className="presentation-link drive-link";action.href="https://docs.google.com/document/d/14VmXPDqu_O5u2BkXT_UxNXKdSICN71_DZbgmEa7TUSE/edit?tab=t.0";action.target="_blank";action.rel="noopener noreferrer";action.textContent="↗ Consultar guía en Google Docs";
+   const note=document.createElement("p");note.className="presentation-note";note.textContent="El documento se abrirá en una nueva pestaña; su descarga depende de los permisos del propietario.";
+   card.append(date,heading,desc,resource,action,note);content.append(card);
+   modal.classList.add("open");document.getElementById("closeBtn").focus();return;
+ }
+ if(s.id==="A4"){
+   const card=document.createElement("article");card.className="presentation-card";
+   const date=document.createElement("p");date.className="presentation-date";date.textContent="DÍA 4 · JUEVES 12 DE NOVIEMBRE DE 2026";
+   const heading=document.createElement("h3");heading.textContent="De la pregunta de investigación a la exploración de técnicas e instrumentos";
+   const desc=document.createElement("p");desc.textContent="Durante la jornada se desarrolló un ejercicio académico simulado orientado a la reformulación de propuestas a partir de los intereses de investigación y las preguntas investigativas previamente construidas. Se formularon preguntas preliminares de carácter general para una entrevista, en el marco del reconocimiento de técnicas e instrumentos de recolección de información.";
+   const subtitle=document.createElement("h4");subtitle.textContent="Secuencia metodológica de la jornada";
+   const grid=document.createElement("div");grid.className="resource-grid";
+   for(const [icon,title,description] of [
+     ["01","Reformulación","Revisión del interés de investigación y de la pregunta investigativa."],
+     ["02","Diseño preliminar","Formulación de preguntas generales para una entrevista."],
+     ["03","Ejercicio simulado","Exploración académica de la entrevista como técnica de recolección de información."],
+     ["04","Registro audiovisual","Grabaciones de audio y video del ejercicio simulado."],
+     ["05","Trabajo posterior","Transcripción, sistematización y definición de categorías de análisis."]
+   ]){
+     const tile=document.createElement("section");tile.className="resource-card";
+     const h=document.createElement("h4");h.textContent=icon+" · "+title;
+     const p=document.createElement("p");p.textContent=description;tile.append(h,p);grid.append(tile);
+   }
+   const resource=document.createElement("section");resource.className="resource-card";
+   const resourceTitle=document.createElement("h4");resourceTitle.textContent="🎙️ Recurso compartido · Tutorial de TurboScribe";
+   const resourceDesc=document.createElement("p");resourceDesc.textContent="Se compartió una presentación tutorial de TurboScribe para apoyar la transcripción de las grabaciones de audio y video. Los textos resultantes podrán utilizarse posteriormente para la sistematización de información y la definición de categorías de investigación.";
+   const action=document.createElement("a");action.className="presentation-link drive-link";action.href=TUTORIAL_TURBOSCRIBE;action.target="_blank";action.rel="noopener noreferrer";action.textContent="↗ Consultar tutorial de TurboScribe";
+   const note=document.createElement("p");note.className="presentation-note";note.textContent="La transcripción, la sistematización y la definición de categorías se plantearon como actividades posteriores; no se presentan como resultados ya alcanzados. Antes de cargar grabaciones en servicios externos, verificar el consentimiento y la protección de datos de las personas participantes.";
+   resource.append(resourceTitle,resourceDesc,action);
+   card.append(date,heading,desc,subtitle,grid,resource,note);content.append(card);
+   modal.classList.add("open");document.getElementById("closeBtn").focus();return;
+ }
+ if(s.id==="P1"){
+   const card=document.createElement("article");card.className="presentation-card";
+   const date=document.createElement("p");date.className="presentation-date";date.textContent="PUENTE DE INTEGRACIÓN · PISO 1";
+   const heading=document.createElement("h3");heading.textContent="P1 · Creación de Repositorio";
+   const desc=document.createElement("p");desc.textContent="Este puente conecta la Investigación Pedagógica con la Aplicación de Inteligencia Artificial. Aquí aprenderás a crear un repositorio en GitHub, cargar archivos HTML/CSS/JavaScript y publicar una página mediante GitHub Pages. El repositorio servirá para conservar y mejorar progresivamente los artefactos construidos durante el evento.";
+   const first=document.createElement("a");first.className="presentation-link";first.href=PRESENTACION_PUENTE_P1;first.target="_blank";first.rel="noopener noreferrer";first.textContent="↗ Ver presentación sobre GitHub y GitHub Pages";
+   const second=document.createElement("a");second.className="presentation-link secondary-link";second.href=VIDEO_PUENTE_P1;second.target="_blank";second.rel="noopener noreferrer";second.textContent="▶ Ver videotutorial: Publica tu Web GRATIS en Internet con GitHub Pages";
+   const note=document.createElement("p");note.className="presentation-note";note.textContent="Ambos recursos se abrirán en una pestaña nueva. Puedes cerrar esta ventana para regresar al edificio.";
+   card.append(date,heading,desc,first,second,note);content.append(card);
+   modal.classList.add("open");document.getElementById("closeBtn").focus();return;
+ }
+ if(s.id==="B1" || s.id==="B2" || s.id==="B3" || s.id==="B4"){
+   const cuartoDia=s.id==="B4";
+   const tercerDia=s.id==="B3";
+   const segundoDia=s.id==="B2";
+   const card=document.createElement("article");card.className="presentation-card";
+   const date=document.createElement("p");date.className="presentation-date";date.textContent=cuartoDia?"DÍA 4 · JUEVES 12 DE NOVIEMBRE DE 2026":tercerDia?"DÍA 3 · MIÉRCOLES 11 DE NOVIEMBRE DE 2026":segundoDia?"DÍA 2 · MARTES 10 DE NOVIEMBRE DE 2026":"DÍA 1 · LUNES 9 DE NOVIEMBRE DE 2026";
+   const heading=document.createElement("h3");heading.textContent=cuartoDia?"Publicar artefactos HTML inteligentes en la nube":tercerDia?"Integración de funcionalidades de IA mediante API":segundoDia?"Creación de artefactos HTML con inteligencia artificial":"Aplicación de la Inteligencia Artificial en la Investigación Pedagógica";
+   const desc=document.createElement("p");desc.textContent=cuartoDia?"Presentación sobre la publicación de artefactos HTML inteligentes en la nube y la integración de servicios. Explica la IA como herramienta, funcionalidad y motor del sistema; la estructura HTML, CSS y JavaScript; el papel de las API y las claves de acceso; y las ventajas de publicar y conectar aplicaciones mediante GitHub, GitHub Pages, Google Apps Script, Google Sheets y Google Drive. Incluye tres talleres: (1) Data Logging Inteligente, que conecta un artefacto con Sheets, Apps Script y OpenAI; (2) Repositorio Documental Inteligente, que analiza, organiza y almacena documentos; y (3) Generador Inteligente de Rutas de Aprendizaje Situado, que genera rutas con IA y registra y almacena resultados en Sheets y Drive.":tercerDia?"Presentación sobre la incorporación de inteligencia artificial como funcionalidad de artefactos HTML/CSS/JavaScript mediante API. Explica la convergencia de hardware, software e IA; las diferencias entre CPU, GPU y TPU; la anatomía de un artefacto web; la comunicación entre aplicaciones mediante API y API Keys; el consumo de tokens y modelos; y la conexión segura con proveedores como OpenAI y DeepSeek mediante un backend intermediario. Incluye talleres prácticos para integrar capacidades de IA en artefactos digitales.":segundoDia?"Presentación práctica sobre la creación de artefactos digitales con inteligencia artificial. Explica los papeles de HTML, CSS y JavaScript; compara usos de la IA como herramienta, funcionalidad y motor de sistemas; aborda la ventana de contexto, la continuidad de proyectos con modelos de lenguaje y el desarrollo por habitaciones en un único archivo HTML. Incluye cuatro talleres: dashboard de invernadero desde Excel, ficha digital de proyectos desde Excel, informe ejecutivo gamificado desde PDF y tienda virtual Guadua Noble con administrador y almacenamiento local.":"Presentación introductoria sobre los fundamentos de la inteligencia artificial y su relación con la investigación pedagógica en el SENA. Aborda la evolución tecnológica, el aprendizaje de las máquinas, el reconocimiento de patrones, la generación de contenido, los sesgos de los modelos y la antropomorfización de la IA. Incluye experiencias relacionadas con la creación de artefactos digitales mediante inteligencia artificial.";
+   const action=document.createElement("a");action.className="presentation-link";action.href=cuartoDia?PRESENTACION_DIA_4:tercerDia?PRESENTACION_DIA_3:segundoDia?PRESENTACION_DIA_2:PRESENTACION_DIA_1;action.target="_blank";action.rel="noopener noreferrer";action.textContent="↗ Ver presentación en línea";
+   const note=document.createElement("p");note.className="presentation-note";note.textContent="La presentación se abrirá en una nueva pestaña de Google Slides.";
+   card.append(date,heading,desc,action,note);content.append(card);
+   modal.classList.add("open");document.getElementById("closeBtn").focus();return;
+ }
+ const empty=document.createElement("div");empty.className="empty";
+ const icon=document.createElement("div");icon.className="symbol";icon.textContent="🚪";
+ const title=document.createElement("h3");title.textContent="Espacio preparado";
+ const para=document.createElement("p");para.textContent="Este espacio está vacío por ahora. En la siguiente fase incorporaremos habitaciones, demostraciones, recursos y evidencias.";
+ empty.append(icon,title,para);content.append(empty);
+ if(s.rooms.length){const list=document.createElement("div");list.className="navlist";for(const room of s.rooms){const el=document.createElement("button");el.textContent=room.title;el.onclick=()=>alert(room.description||"Contenido pendiente");list.append(el)}content.append(list)}
+ modal.classList.add("open");document.getElementById("closeBtn").focus();
+}
+
+function showEventResource(kind){
+  const objective=kind==="objetivo";
+  previousFocus.el=document.activeElement;
+  document.getElementById("modalEyebrow").textContent="Presentación del Evento";
+  document.getElementById("modalTitle").textContent=objective?"Objetivo de la convocatoria":"Agenda de la semana";
+  document.getElementById("modalMeta").replaceChildren();
+  const content=document.getElementById("modalContent");content.replaceChildren();
+  const figure=document.createElement("figure");figure.className="event-figure";
+  const image=document.createElement("img");
+  image.src=objective?"assets/objetivo.png":"assets/agenda.png";
+  image.alt=objective?"Objetivo de la convocatoria del evento de divulgación tecnológica":"Agenda de la semana del 9 al 13 de noviembre de 2026";
+  image.loading="lazy";image.tabIndex=0;image.setAttribute("role","button");image.setAttribute("aria-label","Ampliar imagen en otra pestaña");
+  const enlarge=()=>window.open(image.src,"_blank","noopener,noreferrer");
+  image.addEventListener("click",enlarge);
+  image.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();enlarge()}});
+  const caption=document.createElement("figcaption");caption.textContent="Selecciona la imagen para ampliarla.";
+  figure.append(image,caption);content.append(figure);
+  modal.classList.add("open");document.getElementById("closeBtn").focus();
+}
+
+
+function showLearningMap(initialTab="base"){
+ previousFocus.el=document.activeElement;
+ document.getElementById("modalEyebrow").textContent="Mapa interactivo · Recorridos de aprendizaje";
+ document.getElementById("modalTitle").textContent="Edificio del Conocimiento";
+ document.getElementById("modalMeta").replaceChildren();
+ const content=document.getElementById("modalContent");content.replaceChildren();
+ const root=document.createElement("section");root.className="learning-map";
+ const intro=document.createElement("p");intro.className="learning-map-intro";intro.textContent="Explora la Base, las dos torres formativas y los puentes que conectan la investigación pedagógica con la aplicación de IA. Selecciona un espacio para abrirlo.";
+ const tabs=document.createElement("div");tabs.className="learning-map-tabs";tabs.setAttribute("role","tablist");tabs.setAttribute("aria-label","Componentes del edificio");
+ const grid=document.createElement("div");grid.className="learning-map-grid";grid.setAttribute("aria-live","polite");
+ const bridgeSection=document.createElement("section");bridgeSection.className="learning-map-bridges";
+ const bridgeHeading=document.createElement("h3");bridgeHeading.textContent="🌉 Puentes de integración · P1–P5";
+ const bridgeGrid=document.createElement("div");bridgeGrid.className="learning-map-grid";
+ const groups={base:["recepcion","habitaciones","agenda","recorridos","memorias"],a:["A1","A2","A3","A4","A5"],b:["B1","B2","B3","B4","B5"]};
+ const labels={base:"🏛️ Base",a:"📗 Torre A",b:"🧠 Torre B"};
+ function addItem(host,id){
+  const s=spaces[id],disabled=id==="A5"||id==="B5";
+  const b=document.createElement("button");b.type="button";b.className="learning-map-item";b.disabled=disabled;
+  const heading=document.createElement("strong");heading.textContent=(id==="A5"||id==="B5"?"🔒 ":"")+s.title;
+  const sub=document.createElement("small");sub.textContent=disabled?"Acceso desactivado · El cierre se realiza en el Puente 5":(id==="P5"?"Claude vs. Gemini y trabajos de los grupos":s.description);
+  b.append(heading,sub);b.addEventListener("click",()=>{if(id==="recorridos")return;show(id)});host.append(b);
+ }
+ function select(tab){
+  grid.replaceChildren();for(const id of groups[tab])addItem(grid,id);
+  for(const button of tabs.querySelectorAll("button")){button.setAttribute("aria-selected",String(button.dataset.tab===tab))}
+ }
+ for(const [id,label] of Object.entries(labels)){
+  const b=document.createElement("button");b.type="button";b.textContent=label;b.dataset.tab=id;b.setAttribute("role","tab");b.onclick=()=>select(id);tabs.append(b);
+ }
+ for(let n=1;n<=5;n++)addItem(bridgeGrid,"P"+n);
+ bridgeSection.append(bridgeHeading,bridgeGrid);
+ const note=document.createElement("p");note.className="learning-map-hint";note.textContent="Los pisos A5 y B5 no tienen acceso directo. El Puente 5 concentra la socialización y memoria del evento.";
+ root.append(intro,tabs,grid,bridgeSection,note);content.append(root);
+ select(initialTab);
+ modal.classList.add("open");document.getElementById("closeBtn").focus();
+}
+
+function showDirectory(){
+ previousFocus.el=document.activeElement;
+ document.getElementById("modalEyebrow").textContent="Mapa del edificio";
+ document.getElementById("modalTitle").textContent="Directorio de espacios";
+ document.getElementById("modalMeta").replaceChildren();
+ const content=document.getElementById("modalContent");content.replaceChildren();
+ const list=document.createElement("div");list.className="navlist";
+ for(const [id,s] of Object.entries(spaces)){
+ if(id==="A5"||id==="B5")continue;
+ const button=document.createElement("button");button.textContent=s.group+" · "+s.title;
+ button.addEventListener("click",()=>show(id));list.append(button)
+ }content.append(list);modal.classList.add("open");document.getElementById("closeBtn").focus();
+}
+function renderHotspots(){
+ const map=matchMedia("(max-width: 700px)").matches?vertical:horizontal;
+ const host=document.getElementById("hotspots");host.replaceChildren();
+ const add=(id,rect)=>{const b=document.createElement("button");b.type="button";b.className="hotspot";b.setAttribute("aria-label",spaces[id].group+" · "+spaces[id].title);b.title=spaces[id].title;
+ [b.style.left,b.style.top,b.style.width,b.style.height]=[rect[0]+"%",rect[1]+"%",rect[2]+"%",rect[3]+"%"];
+ b.onclick=()=>show(id);host.append(b)};
+ for(const prefix of ["A","B","P"])map[prefix].forEach((rect,i)=>{const id=prefix+(i+1);if(id!=="A5"&&id!=="B5")add(id,rect)});
+ for(const id of ["recepcion","recorridos","habitaciones","agenda","memorias"])add(id,map[id]);
+}
+function close(){modal.classList.remove("open");previousFocus.el?.focus()}
+document.getElementById("closeBtn").onclick=close;
+modal.addEventListener("click",e=>{if(e.target===modal)close()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&modal.classList.contains("open"))close()});
+document.getElementById("directoryBtn").onclick=showDirectory;
+document.getElementById("enterMemories").addEventListener("click",()=>{document.getElementById("welcomeScreen").hidden=true;document.querySelector(".shell").classList.remove("is-hidden");window.scrollTo(0,0);requestAnimationFrame(fitBuildingToViewport)});
+document.getElementById("helpBtn").onclick=()=>show("recepcion");
+matchMedia("(max-width: 700px)").addEventListener("change",renderHotspots);
+renderHotspots();
+/* Encajar la imagen completa en la pantalla sin recortar ni desplazar sus hotspots. */
+function fitBuildingToViewport(){
+  const shell=document.querySelector('.shell');
+  if(shell.classList.contains('is-hidden') || shell.style.display==='none')return;
+  const stage=document.getElementById('stage');
+  const image=stage.querySelector('picture img');
+  const header=shell.querySelector('header');
+  const footer=shell.querySelector('footer');
+  const help=shell.querySelector('.help');
+  const viewportHeight=window.visualViewport?.height || window.innerHeight;
+  const availableHeight=Math.max(160,viewportHeight-header.getBoundingClientRect().height-footer.getBoundingClientRect().height-help.getBoundingClientRect().height-12);
+  const source=image.currentSrc || image.src;
+  const isVertical=source.includes('frontVertical');
+  const ratio=isVertical ? 1.5 : (image.naturalWidth && image.naturalHeight ? image.naturalWidth/image.naturalHeight : 1.5);
+  const availableWidth=stage.parentElement.clientWidth;
+  stage.style.width=Math.min(availableWidth,availableHeight*ratio,1800)+'px';
+}
+window.addEventListener('resize',fitBuildingToViewport,{passive:true});
+window.visualViewport?.addEventListener('resize',fitBuildingToViewport,{passive:true});
+document.querySelector('#stage picture img').addEventListener('load',fitBuildingToViewport);
+
+function openToolsFloor(){
+ document.querySelector('.shell').style.display='none';
+ document.getElementById('modal').classList.remove('open');
+ document.getElementById('integratedTools').classList.add('active');
+ window.scrollTo(0,0);
+}
+function backToBuilding(){
+ document.getElementById('integratedTools').classList.remove('active');
+ document.querySelector('.shell').style.display='';
+ window.scrollTo(0,0);
+}
+</script>
+<section aria-label="Torre A Piso 3 · Herramientas IA para la Investigación" id="integratedTools"><header class="room-head"><div><div class="crumb">Torre A · Piso 3 · Miércoles 11 de noviembre de 2026</div><strong>Memorias y laboratorio pedagógico · SENA</strong></div><button class="secondary" id="backToBuilding" type="button">← Volver al edificio</button></header>
+<main class="room-shell"><div class="room-kicker">TORRE A · PISO 3 · DÍA 3</div><h1 class="room-title">Herramientas IA para la Investigación</h1><p class="room-lead">Ruta metodológica, taxonomía emergente y herramientas de inteligencia artificial para la investigación pedagógica.</p>
+<nav aria-label="Elegir perspectiva" class="mode-switch"><button aria-controls="rutaSection" aria-pressed="true" class="mode-btn" id="showRuta" type="button">🧭 Ruta Metodológica</button><button aria-controls="taxSection" aria-pressed="false" class="mode-btn" id="showTax" type="button">🧠 Taxonomía Emergente</button></nav>
+<section aria-labelledby="ruta-title" class="content-section" id="rutaSection"><div class="section-eyebrow">Perspectiva metodológica</div><h2 id="ruta-title">🧭 Ruta Metodológica</h2><figure class="figure"><img alt="Mapa visual de la ruta metodológica de investigación" loading="lazy" onerror="this.parentElement.classList.add('figure-missing')" src="assets/rutamet.png"><figcaption>Mapa de la ruta metodológica · Imagen ubicada en assets/rutamet.png.</figcaption></img></figure><p>El recorrido metodológico organiza el trabajo investigativo desde el reconocimiento de una situación hasta la transferencia y divulgación de resultados. En este artefacto se presentan <strong>siete niveles (0–6)</strong> y una correspondencia <strong>orientadora</strong> con el proceso de investigación descrito por Hernández Sampieri; esta organización no se atribuye al autor.</p>
+
+<div class="notice"><strong>Cómo leer el mapa:</strong> ofrece una síntesis visual del proceso investigativo. Los botones siguientes permiten profundizar en los siete niveles de la ruta original (0–6).</div><h3>Explora los siete niveles metodológicos</h3><div aria-label="Seleccionar nivel metodológico" class="level-switch" id="researchLevels" role="group"></div><div aria-live="polite" class="level-detail" id="researchLevelDetail"></div></section>
+<section aria-labelledby="tax-title" class="content-section" hidden="" id="taxSection"><div class="section-eyebrow">Perspectiva cognitiva</div><h2 id="tax-title">🧠 Taxonomía Emergente</h2><figure class="figure"><img alt="Representación gráfica de la taxonomía emergente con sus procesos cognitivos" loading="lazy" onerror="this.parentElement.classList.add('figure-missing')" src="assets/taxo.png"/><figcaption>Taxonomía emergente · Imagen ubicada en assets/taxo.png.</figcaption></figure><p>Esta taxonomía describe <strong>siete operaciones cognitivas</strong> que orientan el uso reflexivo de la inteligencia artificial en la investigación pedagógica. A diferencia de la ruta metodológica, no representa fases cronológicas: los procesos pueden aplicarse en distintos momentos de una investigación.</p>
+<div class="cognitive-grid" id="cognitiveGrid"></div><div class="notice"><strong>Principio:</strong> las LLM sugieren; el investigador interroga, contextualiza, contrasta, verifica, selecciona, decide y cocrea con responsabilidad.</div></section>
+<section aria-labelledby="tools-title" class="content-section"><div class="section-eyebrow">Contenedor 3</div><h2 id="tools-title">🛠️ Herramientas IA</h2><p>Las herramientas cambian según la perspectiva y la selección activa. Son recomendaciones orientadoras, no una validación de sus resultados.</p><div class="tools-grid" id="toolsGrid"></div><div class="notice"><strong>Criterio humano:</strong> antes de usar un servicio, comprueba su disponibilidad, condiciones de acceso, privacidad, confiabilidad y pertinencia. No compartas datos sensibles de aprendices ni información confidencial.</div></section>
+<footer class="footer">Edificio del Conocimiento · SENA · Barranquilla 2026</footer></main>
+<footer class="footer">Edificio del Conocimiento · SENA · Barranquilla 2026</footer></section>
+<script>
+'use strict';
+const researchLevels=[
+{n:0,name:'Explorar / Situar',question:'¿Qué realidad quiero transformar?',goal:'Reconocer la situación, los actores y el contexto.',activities:'Observar la práctica formativa, escuchar actores y registrar intereses.',sampieri:'Idea de investigación, aproximación al fenómeno y contextualización inicial.',human:'Elegir la situación significativa y escuchar a sus protagonistas.',tools:[['ChatGPT','https://chatgpt.com/'],['Gemini','https://gemini.google.com/'],['Perplexity','https://www.perplexity.ai/'],['iAsk','https://iask.ai/'],['TurboScribe','https://turboscribe.ai/es/']]},
+{n:1,name:'Formular / Delimitar',question:'¿Qué pregunta orienta mi búsqueda?',goal:'Delimitar el problema y formular una pregunta investigable.',activities:'Revisar literatura, identificar vacíos y contrastar preguntas.',sampieri:'Planteamiento del problema, preguntas, objetivos y justificación; revisión inicial de literatura.',human:'Definir la pregunta y valorar su pertinencia y viabilidad.',tools:[['Semantic Scholar','https://www.semanticscholar.org/'],['Consensus','https://consensus.app/'],['Elicit','https://elicit.com/'],['ResearchRabbit','https://www.researchrabbit.ai/'],['Connected Papers','https://www.connectedpapers.com/'],['Litmaps','https://www.litmaps.com/'],['Scite','https://scite.ai/']]},
+{n:2,name:'Diseñar / Fundamentar',question:'¿Cómo voy a responder esa pregunta?',goal:'Definir bases conceptuales y decisiones metodológicas.',activities:'Organizar antecedentes, precisar enfoque, técnicas, instrumentos y criterios de análisis.',sampieri:'Marco teórico y diseño de investigación, según el enfoque seleccionado.',human:'Justificar el diseño y revisar la validez y pertinencia de los instrumentos.',tools:[['Elicit','https://elicit.com/'],['Consensus','https://consensus.app/'],['Humata','https://www.humata.ai/'],['Julius AI','https://julius.ai/'],['Typeform','https://www.typeform.com/']]},
+{n:3,name:'Aplicar / Verificar',question:'¿Los datos son confiables y válidos?',goal:'Recolectar, organizar y verificar evidencias con rigor.',activities:'Aplicar instrumentos, documentar procedimientos, examinar calidad y protección de datos.',sampieri:'Recolección de datos y control de calidad del procedimiento.',human:'Garantizar consentimiento, confidencialidad, trazabilidad y calidad de evidencias.',tools:[['Dovetail','https://dovetail.com/'],['Julius AI','https://julius.ai/'],['Otter.ai','https://otter.ai/'],['Fireflies.ai','https://fireflies.ai/'],['Microsoft Copilot','https://copilot.microsoft.com/']]},
+{n:4,name:'Interpretar / Comunicar',question:'¿Qué significan los hallazgos?',goal:'Analizar datos y construir interpretaciones argumentadas.',activities:'Contrastar hallazgos con la pregunta, los antecedentes y las limitaciones.',sampieri:'Análisis e interpretación de resultados y elaboración del reporte.',human:'Distinguir evidencia de inferencia y asumir las conclusiones.',tools:[['Julius AI','https://julius.ai/'],['Paperpal','https://paperpal.com/'],['Trinka','https://www.trinka.ai/'],['Zotero','https://www.zotero.org/'],['Gamma','https://gamma.app/']]},
+{n:5,name:'Evaluar',question:'¿Qué impacto tuvo y qué sigue?',goal:'Valorar alcances, limitaciones y oportunidades de mejora.',activities:'Examinar resultados frente a objetivos, impactos y nuevos interrogantes.',sampieri:'Discusión, conclusiones, limitaciones y recomendaciones.',human:'Juzgar el impacto real sin exagerar hallazgos.',tools:[['Julius AI','https://julius.ai/'],['Notion','https://www.notion.so/product/ai'],['Microsoft Copilot','https://copilot.microsoft.com/'],['ChatGPT','https://chatgpt.com/'],['Claude','https://claude.ai/'],['TurboScribe','https://turboscribe.ai/es/']]},
+{n:6,name:'Transferir / Divulgar',question:'¿Cómo lo comparto y lo hago útil?',goal:'Comunicar resultados de forma accesible y responsable.',activities:'Preparar informes, presentaciones, repositorios y productos de transferencia.',sampieri:'Comunicación del reporte de investigación y difusión de resultados.',human:'Responder por la autoría, el contexto, las fuentes y los destinatarios.',tools:[['Paperpal','https://paperpal.com/'],['Trinka','https://www.trinka.ai/'],['Gamma','https://gamma.app/'],['DeepL','https://www.deepl.com/translator'],['ResearchGate','https://www.researchgate.net/']]}
+];
+const cognitiveLevels=[
+['Interrogar','Formular preguntas relevantes y examinar críticamente las respuestas de la IA.'],
+['Contextualizar','Situar el problema en sus actores, condiciones, antecedentes y contexto formativo.'],
+['Contrastar','Comparar fuentes, perspectivas y respuestas de diferentes modelos.'],
+['Verificar','Comprobar afirmaciones, datos y referencias mediante fuentes confiables.'],
+['Curar','Seleccionar, organizar y justificar la información pertinente.'],
+['Arbitrar','Tomar decisiones argumentadas, sin delegar el juicio del investigador.'],
+['Cocrear','Construir productos y conocimiento con participación y responsabilidad humana.']
+];
+const link=(name,url)=>{const a=document.createElement('a');a.href=url;a.target='_blank';a.rel='noopener noreferrer';a.textContent=name+' ↗';return a;};
+const taxTools=[
+{label:'Interrogar',why:'Explorar y reformular preguntas con apoyo de modelos conversacionales.',tools:[['ChatGPT','https://chatgpt.com/'],['Gemini','https://gemini.google.com/'],['Claude','https://claude.ai/'],['TurboScribe','https://turboscribe.ai/es/']]},
+{label:'Contextualizar',why:'Explorar antecedentes y situar el problema en su contexto.',tools:[['Perplexity','https://www.perplexity.ai/'],['Elicit','https://elicit.com/'],['Semantic Scholar','https://www.semanticscholar.org/']]},
+{label:'Contrastar',why:'Comparar hallazgos, literatura y respuestas de distintos modelos.',tools:[['Consensus','https://consensus.app/'],['Elicit','https://elicit.com/'],['ChatGPT','https://chatgpt.com/'],['Gemini','https://gemini.google.com/']]},
+{label:'Verificar',why:'Examinar respaldo bibliográfico y comprobar fuentes originales.',tools:[['Scite','https://scite.ai/'],['Semantic Scholar','https://www.semanticscholar.org/'],['Perplexity','https://www.perplexity.ai/']]},
+{label:'Curar',why:'Organizar y seleccionar fuentes relevantes con trazabilidad.',tools:[['Zotero','https://www.zotero.org/'],['ResearchRabbit','https://www.researchrabbit.ai/'],['Litmaps','https://www.litmaps.com/']]},
+{label:'Arbitrar',why:'Comparar argumentos para fundamentar una decisión humana.',tools:[['ChatGPT','https://chatgpt.com/'],['Claude','https://claude.ai/'],['Gemini','https://gemini.google.com/']]},
+{label:'Cocrear',why:'Preparar borradores, informes y materiales revisados por el investigador.',tools:[['ChatGPT','https://chatgpt.com/'],['Gamma','https://gamma.app/'],['Paperpal','https://paperpal.com/']]}
+];
+let mode='ruta',activeLevel=0,activeTax=0;
+const tg=document.getElementById('toolsGrid');
+function toolList(items){const links=document.createElement('div');links.className='tool-links';items.forEach(([name,url])=>links.append(link(name,url)));return links;}
+function renderTools(){tg.replaceChildren();const data=mode==='ruta'?researchLevels[activeLevel]:taxTools[activeTax];const card=document.createElement('article');card.className='tools-card';const h=document.createElement('h3');h.textContent=mode==='ruta'?`Nivel ${data.n} · ${data.name}`:`${activeTax+1} · ${data.label}`;card.append(h);if(mode==='tax'){const p=document.createElement('p');p.textContent=data.why;card.append(p);}card.append(toolList(data.tools));tg.append(card);}
+function renderLevel(n){activeLevel=n;const l=researchLevels.find(x=>x.n===n)||researchLevels[0];document.querySelectorAll('.level-btn').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.level)===l.n)));const d=document.getElementById('researchLevelDetail');d.replaceChildren();const h=document.createElement('h3');h.textContent=`Nivel ${l.n} · ${l.name}`;d.append(h);for(const [label,value] of [['Pregunta',l.question],['Objetivo',l.goal],['Actividades clave',l.activities],['Correspondencia orientadora con Hernández Sampieri',l.sampieri]]){const p=document.createElement('p');const strong=document.createElement('strong');strong.textContent=label+': ';p.append(strong,document.createTextNode(value));d.append(p);}const notice=document.createElement('div');notice.className='notice';const strong=document.createElement('strong');strong.textContent='Lo que el investigador no delega: ';notice.append(strong,document.createTextNode(l.human));d.append(notice);const box=document.createElement('div');box.className='inline-tools';const title=document.createElement('h4');title.textContent='Herramientas recomendadas';box.append(title,toolList(l.tools));d.append(box);if(mode==='ruta')renderTools();}
+const btns=document.getElementById('researchLevels');researchLevels.forEach(l=>{const b=document.createElement('button');b.type='button';b.className='level-btn';b.dataset.level=l.n;b.textContent=`${l.n} · ${l.name}`;b.addEventListener('click',()=>renderLevel(l.n));btns.append(b)});
+const cg=document.getElementById('cognitiveGrid');cognitiveLevels.forEach(([name,desc],i)=>{const card=document.createElement('button');card.type='button';card.className='cognitive-card';card.style.textAlign='left';card.dataset.tax=i;const strong=document.createElement('strong');strong.textContent=`${i+1} · ${name}`;const p=document.createElement('p');p.textContent=desc;card.append(strong,p);card.addEventListener('click',()=>selectTax(i));cg.append(card)});
+function selectTax(i){activeTax=i;cg.querySelectorAll('button').forEach(b=>{const selected=Number(b.dataset.tax)===i;b.setAttribute('aria-pressed',String(selected));b.style.borderColor=selected?'var(--green)':'var(--line)';b.style.background=selected?'#e8f5ee':'#f8fbfe';});if(mode==='tax')renderTools();}
+function setMode(next){mode=next;document.getElementById('rutaSection').hidden=next!=='ruta';document.getElementById('taxSection').hidden=next!=='tax';document.getElementById('showRuta').setAttribute('aria-pressed',String(next==='ruta'));document.getElementById('showTax').setAttribute('aria-pressed',String(next==='tax'));document.getElementById('tools-title').textContent=next==='ruta'?'🛠️ Herramientas IA · Ruta Metodológica':'🛠️ Herramientas IA · Taxonomía Emergente';renderTools();}
+document.getElementById('showRuta').addEventListener('click',()=>setMode('ruta'));
+document.getElementById('showTax').addEventListener('click',()=>setMode('tax'));
+selectTax(0);renderLevel(0);setMode('ruta');
+
+ document.getElementById("backToBuilding").addEventListener("click",backToBuilding);
+</script>
+</body>
+</html>
